@@ -59,7 +59,7 @@
       100% { box-shadow: 0 0 100px #e11d48, 0 0 220px #f472b6, 0 0 24px #a3e635; }
     }
     /* Popup Level Up */
-    #chooseUpgradePopup {
+    #chooseUpgradePopup, #forceWeaponPopup {
       position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
       background: rgba(25,25,39,0.92); z-index: 9999; display: flex; align-items: center; justify-content: center;
       flex-direction: column; font-family: 'Comic Sans MS', cursive, sans-serif;
@@ -74,6 +74,15 @@
       transition: transform 0.12s, background 0.2s;
     }
     .popup-choice:hover { background: #a3e635; color: #23232a; transform: scale(1.06); }
+    #forceWeaponPopup .popup-choice {min-width:110px; font-size:1.08em;}
+    #forceWeaponPopup .popup-title {color:#f472b6;}
+    #forceWeaponPopup .force-btn {
+      background: #a3e635; color: #23232a; border: none; border-radius: 8px; font-size: 1.2em;
+      margin-top: 20px; padding: 7px 21px; font-family: inherit; cursor: pointer; font-weight: bold;
+      opacity: 0.97; box-shadow: 0 0 22px #a3e635cc;
+      transition: background 0.19s;
+    }
+    #forceWeaponPopup .force-btn:disabled { background: #22262c; color: #bababa; box-shadow: none; cursor:not-allowed; }
     @keyframes popupIn { from { opacity:0; } to { opacity:1; } }
   </style>
 </head>
@@ -110,6 +119,12 @@
     <div class="popup-title">LEVEL UP! Choose Your Bonus</div>
     <div class="popup-choices" id="popupChoiceList"></div>
   </div>
+  <div id="forceWeaponPopup" style="display:none;">
+    <div class="popup-title">Pick Your 6 Weapons!</div>
+    <div class="popup-choices" id="forceWeaponList"></div>
+    <button id="confirmWeaponsBtn" class="force-btn" onclick="confirmWeapons()" disabled>Start Game</button>
+    <div style="margin-top:10px;font-size:1.02em;color:#a3e635;">Pick exactly 6 weapons to play</div>
+  </div>
   <script>
 const WEAPON_LIST = [
   {name:'gatling', key:'gatling', desc:'it shoots fast', css:'gatling', dmg: 2},
@@ -133,7 +148,8 @@ const SPECIAL_UPGRADES = [
   {name:'Auto Repair', key:'autoRepair', desc:'regain health', type:'autoRepair'}
 ];
 let state = {
-  running: true, crystals: 30, hp: 100, wave: 1,
+  running: false, // game does not start until weapons picked!
+  crystals: 30, hp: 100, wave: 1,
   ship: { x: 425, y: 600, speed: 8 },
   weapons: {},
   selectedWeapons: [],
@@ -182,8 +198,41 @@ function toggleWeapon(key) {
   }
   updateUI();
   openWeaponMenu();
+  updateForceWeaponPopup();
 }
-
+// --- Force Weapon Pick at Start ---
+function showForceWeaponPopup() {
+  let popup = document.getElementById('forceWeaponPopup');
+  let list = document.getElementById('forceWeaponList');
+  list.innerHTML = WEAPON_LIST.map(w =>
+    `<button class='popup-choice${state.selectedWeapons.includes(w.key)?' selected-weapon':''}' onclick=\"toggleWeaponForce('${w.key}')\">${w.name}</button>`
+  ).join('');
+  document.getElementById('confirmWeaponsBtn').disabled = state.selectedWeapons.length!==6;
+  popup.style.display='flex';
+}
+function toggleWeaponForce(key) {
+  let i = state.selectedWeapons.indexOf(key);
+  if(i!==-1){
+    state.selectedWeapons.splice(i,1);
+  } else if(state.selectedWeapons.length<6){
+    state.selectedWeapons.push(key);
+  }
+  updateForceWeaponPopup();
+}
+function updateForceWeaponPopup() {
+  let list = document.getElementById('forceWeaponList');
+  list.innerHTML = WEAPON_LIST.map(w =>
+    `<button class='popup-choice${state.selectedWeapons.includes(w.key)?' selected-weapon':''}' onclick=\"toggleWeaponForce('${w.key}')\">${w.name}</button>`
+  ).join('');
+  document.getElementById('confirmWeaponsBtn').disabled = state.selectedWeapons.length!==6;
+}
+function confirmWeapons() {
+  document.getElementById('forceWeaponPopup').style.display='none';
+  state.running = true;
+  updateUI();
+  spawnEnemyWave();
+  setInterval(loop, 30);
+}
 // --- XP and ProgressBar ---
 function addXP(val) {
   state.xp += val;
@@ -444,8 +493,10 @@ function loop() {
   updateEntities();
 }
 updateUI();
-spawnEnemyWave();
-setInterval(loop, 30);
+// Force weapon pick popup at start:
+window.onload = function() {
+  showForceWeaponPopup();
+};
   </script>
 </body>
 </html>
