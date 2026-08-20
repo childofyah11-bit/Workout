@@ -4,87 +4,77 @@
   <meta charset="UTF-8">
   <title>idklol</title>
   <style>
-    body {
-      background: #23232a;
-      color: #fafaf9;
-      font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    h1 {
-      text-align: center;
-      font-size: 2.2em;
-      margin: 24px 0 8px 0;
-      letter-spacing: 1px;
-      color: #a3e635;
-    }
+    body { background: #23232a; color: #fafaf9; font-family: 'Comic Sans MS', cursive, sans-serif; margin: 0; padding: 0; }
+    h1 { text-align: center; font-size: 2.2em; margin: 24px 0 8px 0; color: #a3e635; }
     .stat-panel {
-      background: #28283a;
-      border-radius: 10px;
-      width: 330px;
-      margin: 12px auto 10px auto;
-      padding: 8px 0 10px 0;
-      box-shadow: 0 6px 20px #1115  ;
+      background: #28283a; border-radius: 10px; width: 480px; margin: 12px auto 10px auto;
+      padding: 8px 0 10px 0; box-shadow: 0 6px 20px #1115;
     }
-    .stat-line {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 2px 18px;
-      font-size: 1.02em;
-    }
+    .stat-line { display: flex; justify-content: space-between; align-items: center; padding: 2px 18px; font-size: 1.02em; }
     .stat-val { font-weight: bold; }
     #spaceField {
-      width: 500px; height: 480px; background: #191927; border-radius: 18px;
-      margin: 18px auto 8px auto; position: relative; overflow: hidden;
-      box-shadow: 0 0 60px #23232a, 0 0 120px #a3e63544;
-      border: 2px solid #a3e635;
+      width: 900px; height: 700px; background: #191927; border-radius: 18px; margin: 18px auto 8px auto;
+      position: relative; overflow: hidden; box-shadow: 0 0 60px #23232a, 0 0 120px #a3e63544; border: 3px solid #a3e635;
+      animation: border-glow 2.2s infinite alternate;
     }
-    #playerShip {
-      width: 40px; height: 40px;
-      position: absolute; left: 230px; top: 380px;
-      background: url('https://em-content.zobj.net/source/twitter/376/rocket_1f680.png') no-repeat center/cover;
-      z-index: 1;
-      transition: box-shadow 0.2s;
-    }
+    #playerShip { width: 50px; height: 50px; position: absolute; left: 425px; top: 600px;
+      background: url('https://em-content.zobj.net/source/twitter/376/rocket_1f680.png') no-repeat center/cover; z-index: 1; }
     .enemy {
-      width: 28px; height: 28px;
-      border-radius: 7px;
-      position: absolute;
-      background: #ef4444;
-      border: 2px solid #fafaf9;
-      box-shadow: 0 0 16px #eab308,
-                  0 0 32px #fff1;
+      width: 36px; height: 36px; border-radius: 10px; position: absolute; background: #ef4444;
+      border: 2px solid #fafaf9; box-shadow: 0 0 16px #eab308, 0 0 32px #fff1;
+      animation: enemyGlow 1.8s infinite alternate;
     }
-    .laser {
-      width: 7px; height: 20px;
-      border-radius: 3px;
-      position: absolute; background: #818cf8;
-      left: 0; top: 0;
-      box-shadow: 0 0 10px #818cf8a0;
+    @keyframes enemyGlow {
+      0% { box-shadow: 0 0 16px #eab308, 0 0 32px #fff1; }
+      100% { box-shadow: 0 0 40px #f472b6, 0 0 80px #fff1; }
     }
-    .upgrade-btn {
-      background: #374151;
-      color: #ececec;
-      border-radius: 7px;
-      border: 2px solid #94a3b8;
-      padding: 7px 18px;
-      margin: 5px 3px 0 3px;
-      font-size: 1em;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-    }
-    .upgrade-btn:disabled {
-      background: #22262c;
-      color: #5a5a5a;
-      cursor: not-allowed;
-      border-color: #2a2a2a;
-    }
-    #weaponMenu {
-      margin: 2px 0 8px 0;
-      text-align: center;
-    }
-    /* Fun look */
+    .proj { position: absolute; border-radius: 50%; pointer-events: none; }
+    .gatling { width: 12px; height: 27px; background: #fbbf24; box-shadow: 0 0 20px #fbbf24b0; }
+    .flak { width: 19px; height: 19px; background: #eab308; box-shadow: 0 0 24px #eab308b0; }
+    .laser { width: 7px; height: 48px; background: #818cf8; box-shadow: 0 0 20px #818cf8a0; }
+    .plasma { width: 17px; height: 17px; background: #06b6d4; box-shadow: 0 0 30px #06b6d4b0; }
+    .railgun { width: 8px; height: 70px; background: #64748b; box-shadow: 0 0 36px #64748bb0; }
+    .missile { width: 26px; height: 15px; background: #f59e42; border-radius: 5px; box-shadow: 0 0 22px #f59e42b0; border: 2px solid #a3e635; }
+    .banana { width: 31px; height: 13px; background: #fde047; border-radius: 10px 50px 30px 60px / 20px 40px 15px 30px; box-shadow: 0 0 12px #fef08a; border: 2px solid #a3e635; }
+    .wavegun { width: 17px; height: 17px; background: #38bdf8; border-radius: 50%; box-shadow: 0 0 22px #38bdf8b0; border: 2px solid #818cf8; }
+    .spammer { width: 7px; height: 22px; background: #fff; box-shadow: 0 0 8px #fff; border: 2px solid #f472b6; }
+    .potato { width: 22px; height: 17px; background: #fbbf24; border-radius: 60% 50% 70% 55%; box-shadow: 0 0 12px #fbbf24b0; border: 2px solid #eab308; }
+    .ice { width: 19px; height: 19px; background: #38bdf8; border-radius: 50%; box-shadow: 0 0 28px #7dd3fc; border: 2px solid #818cf8; }
+    .megaboom { width: 48px; height: 48px; background: #f472b6; border-radius: 50%; box-shadow: 0 0 60px #f472b6b0; border: 2px solid #e11d48; }
+    .upgrade-btn { background: #374151; color: #ececec; border-radius: 7px; border: 2px solid #94a3b8;
+      padding: 7px 18px; margin: 5px 3px 0 3px; font-size: 1em; font-family: inherit;
+      cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .upgrade-btn:disabled { background: #22262c; color: #5a5a5a; cursor: not-allowed; border-color: #2a2a2a; }
+    #weaponMenu { margin: 2px 0 8px 0; text-align: center; }
     ::selection { background: #a3e635; color: #191927; }
+    .selected-weapon { outline: 2px solid #a3e635; background: #1e293b !important; }
+    .progress-bar { width: 480px; height: 20px; background: #191927; border: 2px solid #a3e635; border-radius: 7px;
+      margin: 14px auto; position: relative; }
+    .progress { height: 100%; background: linear-gradient(90deg, #38bdf8, #a3e635); border-radius: 5px 0 0 5px; transition: width 0.2s; }
+    .progress-label { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-size: 1em; color: #fafaf9; width: 100%; text-align: center; }
+    .screen-flash { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; background: #f472b699; pointer-events: none; z-index: 9001; animation: flash 0.33s linear 1; }
+    @keyframes flash { 0% { opacity:1; } 90% { opacity:0.02; } 100% { opacity:0; } }
+    @keyframes border-glow {
+      0% { box-shadow: 0 0 60px #23232a, 0 0 120px #a3e63544, 0 0 0 #e11d48; }
+      100% { box-shadow: 0 0 100px #e11d48, 0 0 220px #f472b6, 0 0 24px #a3e635; }
+    }
+    /* Popup Level Up */
+    #chooseUpgradePopup {
+      position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(25,25,39,0.92); z-index: 9999; display: flex; align-items: center; justify-content: center;
+      flex-direction: column; font-family: 'Comic Sans MS', cursive, sans-serif;
+      animation: popupIn 0.3s;
+    }
+    .popup-title { font-size: 2.2em; color: #a3e635; margin-bottom: 18px; letter-spacing: 1px; }
+    .popup-choices { display: flex; gap: 26px; }
+    .popup-choice {
+      background: #23232a; border: 3px solid #a3e635; border-radius: 18px; color: #fafaf9;
+      min-width: 180px; padding: 16px 12px 18px 12px; font-size: 1.15em; text-align: center; cursor: pointer;
+      box-shadow: 0 0 18px #a3e63566, 0 0 64px #f472b666;
+      transition: transform 0.12s, background 0.2s;
+    }
+    .popup-choice:hover { background: #a3e635; color: #23232a; transform: scale(1.06); }
+    @keyframes popupIn { from { opacity:0; } to { opacity:1; } }
   </style>
 </head>
 <body>
@@ -93,17 +83,20 @@
     <div class="stat-line"><span>Crystals:</span><span id="txtCrystals" class="stat-val" style="color:#eab308;">30</span></div>
     <div class="stat-line"><span>Hull:</span><span id="txtHP" class="stat-val" style="color:#ef4444;">100%</span></div>
     <div class="stat-line"><span>Wave:</span><span id="txtWave" class="stat-val" style="color:#22c55e;">1</span></div>
-    <div class="stat-line"><span>Weapon:</span><span id="txtWeapon" class="stat-val" style="color:#818cf8;">None</span></div>
+    <div class="stat-line"><span>Weapons:</span><span id="txtWeapon" class="stat-val" style="color:#818cf8;">None</span></div>
     <div class="stat-line"><span>Upgrades:</span><span id="txtUpgrades" class="stat-val" style="color:#f472b6;">0</span></div>
     <div class="stat-line"><span>Turbo:</span><span id="txtTurbo" class="stat-val" style="color:#16a34a;">0</span></div>
     <div class="stat-line"><span>Magnet:</span><span id="txtMagnet" class="stat-val" style="color:#f59e42;">0</span></div>
     <div class="stat-line"><span>Double XP:</span><span id="txtDoubleXP" class="stat-val" style="color:#38bdf8;">0</span></div>
     <div class="stat-line"><span>Auto Repair:</span><span id="txtAutoRepair" class="stat-val" style="color:#f87171;">0</span></div>
   </div>
+  <div class="progress-bar">
+    <div class="progress" id="progress" style="width: 0%"></div>
+    <div class="progress-label" id="progressLabel">0 / 1000 XP</div>
+  </div>
   <div style="text-align:center;">
-    <button class="upgrade-btn" id="btnWeaponSelect" onclick="openWeaponMenu()">Change Weapon</button>
+    <button class="upgrade-btn" id="btnWeaponSelect" onclick="openWeaponMenu()">Change 6 Weapons</button>
     <div id="weaponMenu" style="display:none; margin-bottom:10px;"></div>
-    <button class="upgrade-btn" id="btnUpgradeWeapon" onclick="upgradeSelectedWeapon()">Upgrade Weapon</button>
     <button class="upgrade-btn" id="btnTurbo" onclick="buyTurbo()">Turbo (15)</button>
     <button class="upgrade-btn" id="btnMagnet" onclick="buyMagnet()">Magnet (12)</button>
     <button class="upgrade-btn" id="btnDoubleXP" onclick="buyDoubleXP()">Double XP (28)</button>
@@ -113,35 +106,47 @@
   <div id="spaceField">
     <div id="playerShip"></div>
   </div>
+  <div id="chooseUpgradePopup" style="display:none;">
+    <div class="popup-title">LEVEL UP! Choose Your Bonus</div>
+    <div class="popup-choices" id="popupChoiceList"></div>
+  </div>
   <script>
-// --- 14-year-old Edition ---
 const WEAPON_LIST = [
-  {name:'gatling', key:'gatling', desc:'it shoots fast'},
-  {name:'flak', key:'flak', desc:'a bunch of boom'},
-  {name:'laser', key:'laser', desc:'pew pew, long'},
-  {name:'plasma', key:'plasma', desc:'blue stuff'},
-  {name:'railgun', key:'railgun', desc:'big line'},
-  {name:'missile', key:'missile', desc:'goes after dudes'},
-  {name:'banana', key:'banana', desc:'just a banana'},
-  {name:'wavegun', key:'wavegun', desc:'wavy'},
-  {name:'spammer', key:'spammer', desc:'spams'},
-  {name:'potato', key:'potato', desc:'it is potato'},
-  {name:'ice', key:'ice', desc:'makes stuff slow'},
-  {name:'megaboom', key:'megaboom', desc:'really big boom'}
+  {name:'gatling', key:'gatling', desc:'it shoots fast', css:'gatling', dmg: 2},
+  {name:'flak', key:'flak', desc:'a bunch of boom', css:'flak', dmg: 4},
+  {name:'laser', key:'laser', desc:'pew pew, long', css:'laser', dmg: 8},
+  {name:'plasma', key:'plasma', desc:'blue stuff', css:'plasma', dmg: 6},
+  {name:'railgun', key:'railgun', desc:'big line', css:'railgun', dmg: 12},
+  {name:'missile', key:'missile', desc:'goes after dudes', css:'missile', dmg: 10},
+  {name:'banana', key:'banana', desc:'just a banana', css:'banana', dmg: 3},
+  {name:'wavegun', key:'wavegun', desc:'wavy', css:'wavegun', dmg: 5},
+  {name:'spammer', key:'spammer', desc:'spams', css:'spammer', dmg: 1},
+  {name:'potato', key:'potato', desc:'it is potato', css:'potato', dmg: 4},
+  {name:'ice', key:'ice', desc:'makes stuff slow', css:'ice', dmg: 2},
+  {name:'megaboom', key:'megaboom', desc:'really big boom', css:'megaboom', dmg: 24}
+];
+const SPECIAL_UPGRADES = [
+  {name:'Hull', key:'hull', desc:'+40 hull', type:'hull'},
+  {name:'Turbo', key:'turbo', desc:'move faster', type:'turbo'},
+  {name:'Magnet', key:'magnet', desc:'pickups easier', type:'magnet'},
+  {name:'Double XP', key:'doubleXP', desc:'level up faster', type:'doubleXP'},
+  {name:'Auto Repair', key:'autoRepair', desc:'regain health', type:'autoRepair'}
 ];
 let state = {
   running: true, crystals: 30, hp: 100, wave: 1,
-  ship: { x: 230, y: 380, speed: 6 },
-  weapons: {}, // {key:level}
-  selectedWeapon: null,
+  ship: { x: 425, y: 600, speed: 8 },
+  weapons: {},
+  selectedWeapons: [],
   upgrades: 0,
   turbo: 0,
   magnet: 0,
   doubleXP: 0,
   autoRepair: 0,
-  costs: {},
+  xp: 0,
+  level: 0,
   keys: {},
   lastFire: {},
+  costs: {}
 };
 WEAPON_LIST.forEach((w,i)=>{
   state.weapons[w.key]=0;
@@ -155,35 +160,110 @@ state.costs.doubleXP=28;
 state.costs.autoRepair=55;
 let entities = {
   enemies: [],
-  lasers: [],
-  missiles: [],
+  projectiles: [],
   effects: [],
 };
 window.addEventListener('keydown', e => state.keys[e.code] = true);
 window.addEventListener('keyup', e => state.keys[e.code] = false);
+
 function openWeaponMenu() {
   const menu = document.getElementById('weaponMenu');
   menu.innerHTML = WEAPON_LIST.map(w =>
-    `<button onclick="selectWeapon('${w.key}')" style='margin:2px;padding:4px 12px;border-radius:6px;background:${state.weapons[w.key]>0?'#22c55e':'#374151'};color:white;border:none;'>${w.name}${state.weapons[w.key]>0?' (Lv'+state.weapons[w.key]+')':''}</button>`
-  ).join(' ');
+    `<button onclick="toggleWeapon('${w.key}')" class='${state.selectedWeapons.includes(w.key)?'selected-weapon':''}' style='margin:2px;padding:4px 12px;border-radius:6px;background:${state.weapons[w.key]>0?'#22c55e':'#374151'};color:white;border:none;'>${w.name}${state.weapons[w.key]>0?' (Lv'+state.weapons[w.key]+')':''}</button>`
+  ).join(' ')+`<div style='margin-top:6px;font-size:0.95em;color:#f87171;'>Pick up to 6 weapons</div>`;
   menu.style.display = menu.style.display==='none'?'block':'none';
 }
-function selectWeapon(key) {
-  state.selectedWeapon=key;
-  document.getElementById('weaponMenu').style.display='none';
+function toggleWeapon(key) {
+  let i = state.selectedWeapons.indexOf(key);
+  if(i!==-1){
+    state.selectedWeapons.splice(i,1);
+  } else if(state.selectedWeapons.length<6){
+    state.selectedWeapons.push(key);
+  }
+  updateUI();
+  openWeaponMenu();
+}
+
+// --- XP and ProgressBar ---
+function addXP(val) {
+  state.xp += val;
+  if(state.xp>=1000){
+    state.xp = 1000;
+    showChooseUpgradePopup();
+  }
   updateUI();
 }
-function upgradeSelectedWeapon() {
-  if(!state.selectedWeapon) return;
-  upgradeWeapon(state.selectedWeapon);
+function showChooseUpgradePopup() {
+  state.running = false;
+  // pick 3 unique upgrades (from weapons & special upgrades)
+  let allUpgs = [...WEAPON_LIST.map(w=>({type:'weapon', key:w.key, name:w.name, desc:w.desc})), ...SPECIAL_UPGRADES];
+  let choices = [];
+  while(choices.length<3){
+    let pick = allUpgs[Math.floor(Math.random()*allUpgs.length)];
+    if(!choices.some(c => c.key===pick.key)) choices.push(pick);
+  }
+  let popup = document.getElementById('chooseUpgradePopup');
+  let list = document.getElementById('popupChoiceList');
+  list.innerHTML = '';
+  choices.forEach(opt=>{
+    let div = document.createElement('div');
+    div.className = 'popup-choice';
+    div.innerHTML = `<b>${opt.name}</b><br><small>${opt.desc}</small><br><br><span style='color:#a3e635;font-size:1.3em;'>+5</span>`;
+    div.onclick = ()=>chooseUpgrade(opt);
+    list.appendChild(div);
+  });
+  popup.style.display='flex';
 }
-function upgradeWeapon(type) {
-  if (state.crystals >= state.costs[type]) {
-    state.crystals -= state.costs[type];
-    state.weapons[type]++;
-    state.upgrades++;
-    state.costs[type] = Math.floor(state.costs[type] * 1.45);
-    if (!state.selectedWeapon) state.selectedWeapon = type;
+function chooseUpgrade(opt) {
+  let popup = document.getElementById('chooseUpgradePopup');
+  popup.style.display='none';
+  // apply upgrade 5 times!
+  for(let i=0;i<5;i++){
+    if(opt.type==='weapon'){
+      state.weapons[opt.key]++;
+    } else if(opt.type==='hull'){
+      state.hp = Math.min(100, state.hp + 40);
+    } else if(opt.type==='turbo'){
+      state.turbo++; state.ship.speed+=2;
+    } else if(opt.type==='magnet'){
+      state.magnet++;
+    } else if(opt.type==='doubleXP'){
+      state.doubleXP++;
+    } else if(opt.type==='autoRepair'){
+      state.autoRepair++;
+    }
+  }
+  state.upgrades++;
+  showLevelUpEffect();
+  state.xp = 0;
+  state.running = true;
+  updateUI();
+}
+function showLevelUpEffect() {
+  let p = document.createElement('div');
+  p.innerText = 'LEVEL UP!';
+  p.style.position='fixed';
+  p.style.left='50%';
+  p.style.top='35%';
+  p.style.fontSize='2.5em';
+  p.style.transform='translate(-50%, -50%)';
+  p.style.color='#a3e635';
+  p.style.fontWeight='bold';
+  p.style.textShadow='0 0 10px #23232a, 0 0 80px #a3e635';
+  p.style.zIndex=10000;
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(), 1200);
+}
+function updateProgressBar() {
+  let percent = Math.min(100, state.xp/1000*100);
+  document.getElementById('progress').style.width = percent+'%';
+  document.getElementById('progressLabel').innerText = Math.floor(state.xp)+' / 1000 XP';
+}
+function upgradeHull() {
+  if(state.crystals>=state.costs.hull){
+    state.crystals-=state.costs.hull;
+    state.hp = Math.min(100, state.hp + 40);
+    state.costs.hull = Math.floor(state.costs.hull * 1.5);
     updateUI();
   }
 }
@@ -220,146 +300,152 @@ function buyAutoRepair() {
     updateUI();
   }
 }
-function upgradeHull() {
-  if(state.crystals>=state.costs.hull){
-    state.crystals-=state.costs.hull;
-    state.hp = Math.min(100, state.hp + 40);
-    state.costs.hull = Math.floor(state.costs.hull * 1.5);
-    updateUI();
-  }
-}
 function updateUI() {
   document.getElementById('txtCrystals').innerText = state.crystals;
   document.getElementById('txtHP').innerText = state.hp + '%';
   document.getElementById('txtWave').innerText = state.wave;
-  document.getElementById('txtWeapon').innerText = state.selectedWeapon?WEAPON_LIST.find(w=>w.key===state.selectedWeapon).name:'None';
+  document.getElementById('txtWeapon').innerText = state.selectedWeapons.length>0?state.selectedWeapons.map(k=>WEAPON_LIST.find(w=>w.key===k).name).join(', '):'None';
   document.getElementById('txtUpgrades').innerText = state.upgrades;
   document.getElementById('txtTurbo').innerText = state.turbo;
   document.getElementById('txtMagnet').innerText = state.magnet;
   document.getElementById('txtDoubleXP').innerText = state.doubleXP;
   document.getElementById('txtAutoRepair').innerText = state.autoRepair;
-  document.getElementById('btnUpgradeWeapon').innerText = state.selectedWeapon?`Upgrade ${WEAPON_LIST.find(w=>w.key===state.selectedWeapon).name} (${state.costs[state.selectedWeapon]})`:'Upgrade Weapon';
-  document.getElementById('btnUpgradeWeapon').disabled = !state.selectedWeapon || state.crystals < state.costs[state.selectedWeapon];
-  document.getElementById('btnTurbo').innerText = `Turbo (${state.costs.turbo})`;
-  document.getElementById('btnTurbo').disabled = state.crystals < state.costs.turbo;
-  document.getElementById('btnMagnet').innerText = `Magnet (${state.costs.magnet})`;
-  document.getElementById('btnMagnet').disabled = state.crystals < state.costs.magnet;
-  document.getElementById('btnDoubleXP').innerText = `Double XP (${state.costs.doubleXP})`;
-  document.getElementById('btnDoubleXP').disabled = state.crystals < state.costs.doubleXP;
-  document.getElementById('btnAutoRepair').innerText = `Auto Repair (${state.costs.autoRepair})`;
-  document.getElementById('btnAutoRepair').disabled = state.crystals < state.costs.autoRepair;
-  document.getElementById('btnHull').innerText = `Hull (+40) (${state.costs.hull})`;
-  document.getElementById('btnHull').disabled = state.crystals < state.costs.hull;
+  updateProgressBar();
 }
 // --- ENEMY VARIETY ---
 const ENEMY_TYPES = [
-  {name:'Raider', hp:10, speed:2, color:'#ef4444'},
-  {name:'Tank', hp:40, speed:0.8, color:'#eab308'},
-  {name:'Swarm', hp:4, speed:3.3, color:'#a3e635'},
-  {name:'Dodger', hp:9, speed:2, dodge:true, color:'#38bdf8'},
-  {name:'Splitter', hp:12, speed:1.5, splits:2, color:'#f472b6'},
-  {name:'Bomber', hp:20, speed:1, drops:true, color:'#f59e42'},
-  {name:'Healer', hp:15, speed:1.2, heal:true, color:'#a21caf'},
-  {name:'Boss', hp:120, speed:0.7, boss:true, color:'#e11d48'},
+  {name:'Raider', hp:20, speed:3, color:'#ef4444'},
+  {name:'Tank', hp:100, speed:0.9, color:'#eab308'},
+  {name:'Swarm', hp:8, speed:4.3, color:'#a3e635'},
+  {name:'Dodger', hp:18, speed:2.5, dodge:true, color:'#38bdf8'},
+  {name:'Splitter', hp:20, speed:2, splits:2, color:'#f472b6'},
+  {name:'Bomber', hp:32, speed:1.8, drops:true, color:'#f59e42'},
+  {name:'Healer', hp:22, speed:1.7, heal:true, color:'#a21caf'},
+  {name:'Boss', hp:180, speed:1.1, boss:true, color:'#e11d48'},
 ];
 function spawnEnemyWave() {
   if (!state.running) return;
-  let count = 3 + state.wave * 2;
+  let count = 7 + state.wave * 2;
   for(let i=0; i<count; i++) {
     setTimeout(() => {
       if (!state.running) return;
       let etype = ENEMY_TYPES[Math.floor(Math.random() * Math.min(1+state.wave/4, ENEMY_TYPES.length))];
+      // Random side: 0=top, 1=right, 2=bottom, 3=left
+      let side = Math.floor(Math.random()*4);
+      let x = 0, y = 0;
+      if(side===0){ x=Math.random()*860; y=-40; }
+      else if(side===1){ x=900; y=Math.random()*660; }
+      else if(side===2){ x=Math.random()*860; y=700; }
+      else { x=-40; y=Math.random()*660; }
       let el = document.createElement('div');
-      el.className = 'enemy'; el.style.left = Math.random() * 460 + 'px'; el.style.top = '-30px';
+      el.className = 'enemy'; el.style.left = x + 'px'; el.style.top = y + 'px';
       el.style.background = `linear-gradient(135deg, ${etype.color}, #111827)`;
       document.getElementById('spaceField').appendChild(el);
-      entities.enemies.push({ el: el, x: Math.random() * 460, y: -30, hp: etype.hp+state.wave*2, type: etype });
-    }, i * 700);
+      entities.enemies.push({ el: el, x: x, y: y, hp: etype.hp+state.wave*3, type: etype, side:side });
+    }, i * 500);
   }
-  setTimeout(() => { if (state.running) { state.wave++; updateUI(); spawnEnemyWave(); } }, 11000 + count * 600);
+  setTimeout(() => { if (state.running) { state.wave++; updateUI(); spawnEnemyWave(); } }, 9000 + count * 400);
 }
-// --- BASIC WEAPON FIRING ---
-function fireWeapon() {
-  if (!state.selectedWeapon || entities.enemies.length===0) return;
-  let weapon = WEAPON_LIST.find(w=>w.key===state.selectedWeapon);
-  let lvl = state.weapons[state.selectedWeapon];
+// --- FIRING: All 6 selected weapons at once, each looks unique & does unique damage ---
+function fireWeapons() {
+  if(state.selectedWeapons.length===0 || entities.enemies.length===0 || !state.running) return;
   let now = Date.now();
-  if (state.lastFire[weapon.key] && now - state.lastFire[weapon.key] < 350 - lvl*35) return;
-  state.lastFire[weapon.key]=now;
-// All weapons just shoot one silly laser for now
-let ship = state.ship;
-fireProjectile(ship.x + 16, ship.y, 0, -10-2*lvl, '#fbbf24', 1+lvl);
+  state.selectedWeapons.forEach((key, idx) => {
+    let weapon = WEAPON_LIST.find(w=>w.key===key);
+    let lvl = state.weapons[key];
+    if (state.lastFire[key] && now - state.lastFire[key] < 270 - lvl*20) return;
+    state.lastFire[key]=now;
+    // spread fire directions for visible effect
+    let angle = Math.PI * (1 + (idx - (state.selectedWeapons.length-1)/2)/Math.max(1,state.selectedWeapons.length));
+    let speed = 13 + 2*lvl;
+    let vx = Math.cos(angle)*speed, vy = Math.sin(angle)*speed;
+    let dmg = weapon.dmg + lvl*2;
+    fireProjectile(state.ship.x+25, state.ship.y+25, vx, vy, weapon.css, dmg, key);
+  });
 }
-function fireProjectile(x, y, vx, vy, color, dmg=1) {
-let laser = document.createElement('div');
-laser.className = 'laser'; laser.style.left = x + 'px'; laser.style.top = y + 'px';
-laser.style.background = color; laser.dataset.dmg = dmg;
-document.getElementById('spaceField').appendChild(laser);
-entities.lasers.push({ el: laser, x: x, y: y, vx: vx, vy: vy, dmg: dmg });
+function fireProjectile(x, y, vx, vy, css, dmg=1, weaponKey='') {
+  let proj = document.createElement('div');
+  proj.className = 'proj '+css; proj.style.left = x + 'px'; proj.style.top = y + 'px';
+  proj.dataset.dmg = dmg;
+  proj.dataset.weapon = weaponKey;
+  document.getElementById('spaceField').appendChild(proj);
+  entities.projectiles.push({ el: proj, x: x, y: y, vx: vx, vy: vy, dmg: dmg, css: css, weapon: weaponKey });
 }
 // --- UPDATE ENTITIES ---
 function updateEntities() {
-// Move lasers
-for(let i=entities.lasers.length-1;i>=0;i--){
-let l = entities.lasers[i];
-l.y += l.vy; l.x += l.vx;
-l.el.style.top = l.y+'px';
-l.el.style.left = l.x+'px';
-// Remove offscreen
-if(l.y<-20||l.y>480||l.x<-20||l.x>500){
-l.el.remove(); entities.lasers.splice(i,1);
+  // Move projectiles
+  for(let i=entities.projectiles.length-1;i>=0;i--){
+    let l = entities.projectiles[i];
+    l.y += l.vy; l.x += l.vx;
+    l.el.style.top = l.y+'px';
+    l.el.style.left = l.x+'px';
+    // Remove offscreen
+    if(l.y<-60||l.y>700||l.x<-60||l.x>900){ l.el.remove(); entities.projectiles.splice(i,1); }
+  }
+  // Move enemies
+  for(let i=entities.enemies.length-1;i>=0;i--){
+    let e = entities.enemies[i];
+    // Move towards ship
+    let sx=state.ship.x+25, sy=state.ship.y+25;
+    let dx = sx-e.x, dy = sy-e.y;
+    let dist = Math.sqrt(dx*dx+dy*dy);
+    let speed = e.type.speed;
+    e.x += dx/dist*speed; e.y += dy/dist*speed;
+    e.el.style.top = e.y+'px';
+    e.el.style.left = e.x+'px';
+    // Remove if offscreen
+    if(e.y>720||e.y<-60||e.x>920||e.x<-60){ e.el.remove(); entities.enemies.splice(i,1); continue; }
+    // Check collision with projectiles
+    for(let j=entities.projectiles.length-1;j>=0;j--){
+      let l = entities.projectiles[j];
+      if(Math.abs(e.x-l.x)<28 && Math.abs(e.y-l.y)<24){
+        e.hp-=l.dmg; 
+        if(l.weapon==='megaboom') flashScreen();
+        l.el.remove(); entities.projectiles.splice(j,1);
+        if(e.hp<=0){
+          e.el.remove(); entities.enemies.splice(i,1);
+          let xpGain = 60 + Math.floor(Math.random()*30);
+          addXP(xpGain);
+          state.crystals+=8+Math.floor(Math.random()*13);
+          updateUI();
+        }
+        break;
+      }
+    }
+    // Check collision with ship
+    if(Math.abs(e.x-(state.ship.x+25))<34 && Math.abs(e.y-(state.ship.y+25))<34){
+      e.el.remove(); entities.enemies.splice(i,1);
+      state.hp-=24;
+      if(state.hp<=0){
+        alert('game over lol'); state.running=false;
+      }
+      updateUI();
+      break;
+    }
+  }
 }
-}
-// Move enemies
-for(let i=entities.enemies.length-1;i>=0;i--){
-let e = entities.enemies[i];
-e.y += e.type.speed;
-e.el.style.top = e.y+'px';
-e.el.style.left = e.x+'px';
-// Remove if offscreen
-if(e.y>500){ e.el.remove(); entities.enemies.splice(i,1); }
-// Check collision with lasers
-for(let j=entities.lasers.length-1;j>=0;j--){
-let l = entities.lasers[j];
-if(Math.abs(e.x-l.x)<22 && Math.abs(e.y-l.y)<18){
-e.hp-=l.dmg; l.el.remove(); entities.lasers.splice(j,1);
-if(e.hp<=0){
-e.el.remove(); entities.enemies.splice(i,1);
-state.crystals+=6+Math.floor(Math.random()*7);
-updateUI();
-}
-break;
-}
-}
-// Check collision with ship
-let sx=state.ship.x, sy=state.ship.y;
-if(Math.abs(e.x-sx)<28 && Math.abs(e.y-sy)<28){
-e.el.remove(); entities.enemies.splice(i,1);
-state.hp-=18;
-if(state.hp<=0){
-alert('game over lol'); state.running=false;
-}
-updateUI();
-break;
-}
-}
+function flashScreen() {
+  let flash = document.createElement('div');
+  flash.className = 'screen-flash';
+  document.body.appendChild(flash);
+  setTimeout(()=>flash.remove(), 350);
 }
 // --- MAIN GAME LOOP ---
 function loop() {
-if (!state.running) return;
-// Controls
-if (state.keys['KeyA'] || state.keys['ArrowLeft']) state.ship.x = Math.max(0, state.ship.x - state.ship.speed);
-if (state.keys['KeyD'] || state.keys['ArrowRight']) state.ship.x = Math.min(460, state.ship.x + state.ship.speed);
-if (state.keys['KeyW'] || state.keys['ArrowUp']) state.ship.y = Math.max(0, state.ship.y - state.ship.speed);
-if (state.keys['KeyS'] || state.keys['ArrowDown']) state.ship.y = Math.min(440, state.ship.y + state.ship.speed);
-document.getElementById('playerShip').style.left = state.ship.x+'px';
-document.getElementById('playerShip').style.top = state.ship.y+'px';
-fireWeapon();
-updateEntities();
+  if (!state.running) return;
+  // Controls
+  if (state.keys['KeyA'] || state.keys['ArrowLeft']) state.ship.x = Math.max(0, state.ship.x - state.ship.speed);
+  if (state.keys['KeyD'] || state.keys['ArrowRight']) state.ship.x = Math.min(850, state.ship.x + state.ship.speed);
+  if (state.keys['KeyW'] || state.keys['ArrowUp']) state.ship.y = Math.max(0, state.ship.y - state.ship.speed);
+  if (state.keys['KeyS'] || state.keys['ArrowDown']) state.ship.y = Math.min(650, state.ship.y + state.ship.speed);
+  document.getElementById('playerShip').style.left = state.ship.x+'px';
+  document.getElementById('playerShip').style.top = state.ship.y+'px';
+  fireWeapons();
+  updateEntities();
 }
 updateUI();
 spawnEnemyWave();
 setInterval(loop, 30);
-</script>
+  </script>
 </body>
 </html>
