@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Defense</title>
+    <title>\Defense</title>
     <style>
         body {
             background-color: #030712;
@@ -142,9 +142,8 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        // Engine State variables
         let gameRunning = true;
-        let crystals = 30; // Starting fund allowance
+        let crystals = 30; 
         let currentWave = 1;
         let keys = {};
 
@@ -172,7 +171,6 @@
                 wp.lvl++;
                 wp.cost = Math.floor(wp.cost * 1.6);
                 
-                // Adjust fire cadences per upgrade iteration
                 if (type === 'gatling') wp.cd = Math.max(150, wp.cd - 60);
                 if (type === 'flak') wp.cd = Math.max(600, wp.cd - 150);
                 
@@ -185,19 +183,16 @@
             document.getElementById('hpText').innerText = `${starship.hp}%`;
             document.getElementById('waveText').innerText = currentWave;
 
-            // Gatling Render Updates
             let g = starship.weapons.gatling;
             document.getElementById('gatlingDesc').innerText = g.lvl > 0 ? `Level ${g.lvl} / Rate: ${(1000/g.cd).toFixed(1)}/s` : "Unmounted";
             document.getElementById('btnGatling').innerText = g.lvl > 0 ? `Upgrade: ${g.cost}` : `Mount: ${g.cost}`;
             document.getElementById('btnGatling').disabled = crystals < g.cost;
 
-            // Flak Cannon Updates
             let f = starship.weapons.flak;
             document.getElementById('flakDesc').innerText = f.lvl > 0 ? `Level ${f.lvl} / Splash: ${40 + f.lvl*10}px` : "Unmounted";
             document.getElementById('btnFlak').innerText = f.lvl > 0 ? `Upgrade: ${f.cost}` : `Mount: ${f.cost}`;
             document.getElementById('btnFlak').disabled = crystals < f.cost;
 
-            // EMP Updates
             let e = starship.weapons.emp;
             document.getElementById('empDesc').innerText = e.lvl > 0 ? `Level ${e.lvl} / Targets: ${1 + e.lvl}` : "Unmounted";
             document.getElementById('btnEmp').innerText = e.lvl > 0 ? `Upgrade: ${e.cost}` : `Mount: ${e.cost}`;
@@ -219,7 +214,6 @@
                     });
                 }, i * 600);
             }
-            // Chain trigger next macro sequence block wave
             setTimeout(() => {
                 if (gameRunning) {
                     currentWave++;
@@ -242,7 +236,6 @@
         }
 
         function update() {
-            // Starship Core Controls Translation Matrix
             if (keys['KeyA'] || keys['ArrowLeft']) if (starship.x > 0) starship.x -= starship.speed;
             if (keys['KeyD'] || keys['ArrowRight']) if (starship.x < canvas.width - starship.w) starship.x += starship.speed;
             if (keys['KeyW'] || keys['ArrowUp']) if (starship.y > 0) starship.y -= starship.speed;
@@ -250,9 +243,16 @@
 
             let now = Date.now();
 
-            // --- AUTOMATED DEFENSE TURRET AI SCHEDULERS ---
             if (starship.weapons.gatling.lvl > 0 && now - starship.weapons.gatling.lastFire > starship.weapons.gatling.cd) {
                 let target = findClosestEnemy(starship, 300);
                 if (target) {
                     let angle = Math.atan2(target.y - starship.y, target.x - starship.x);
                     projectiles.push({
+                        x: starship.x + starship.w/2, y: starship.y + 10,
+                        vx: Math.cos(angle) * 7, vy: Math.sin(angle) * 7,
+                        type: 'plasma', dmg: 8 + starship.weapons.gatling.lvl * 2, rad: 3
+                    });
+                    starship.weapons.gatling.lastFire = now;
+                }
+            }
+
