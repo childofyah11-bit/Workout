@@ -453,7 +453,7 @@ function updateEntities() {
       let l = entities.projectiles[j];
       if(Math.abs(e.x-l.x)<28 && Math.abs(e.y-l.y)<24){
         e.hp-=l.dmg; 
-        if(l.weapon==='megaboom') flashScreen();
+        //if(l.weapon==='megaboom') flashScreen();
         l.el.remove(); entities.projectiles.splice(j,1);
         if(e.hp<=0){
           e.el.remove(); entities.enemies.splice(i,1);
