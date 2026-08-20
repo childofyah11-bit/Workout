@@ -4,113 +4,20 @@
   <meta charset="UTF-8">
   <title>idklol</title>
   <style>
-    body { background: #23232a; color: #fafaf9; font-family: 'Comic Sans MS', cursive, sans-serif; margin: 0; padding: 0; }
-    h1 { text-align: center; font-size: 2.2em; margin: 24px 0 8px 0; color: #a3e635; }
-    .stat-panel {
-      background: #28283a; border-radius: 10px; width: 480px; margin: 12px auto 10px auto;
-      padding: 8px 0 10px 0; box-shadow: 0 6px 20px #1115;
-    }
-    .stat-line { display: flex; justify-content: space-between; align-items: center; padding: 2px 18px; font-size: 1.02em; }
-    .stat-val { font-weight: bold; }
-    #spaceField {
-      width: 900px; height: 700px; background: #191927; border-radius: 18px; margin: 18px auto 8px auto;
-      position: relative; overflow: hidden; box-shadow: 0 0 60px #23232a, 0 0 120px #a3e63544; border: 3px solid #a3e635;
-      animation: border-glow 2.2s infinite alternate;
-    }
-    #playerShip { width: 50px; height: 50px; position: absolute; left: 425px; top: 600px;
-      background: url('https://em-content.zobj.net/source/twitter/376/rocket_1f680.png') no-repeat center/cover; z-index: 1; }
-    .enemy {
-      width: 36px; height: 36px; border-radius: 10px; position: absolute; background: #ef4444;
-      border: 2px solid #fafaf9; box-shadow: 0 0 16px #eab308, 0 0 32px #fff1;
-      animation: enemyGlow 1.8s infinite alternate;
-    }
-    @keyframes enemyGlow {
-      0% { box-shadow: 0 0 16px #eab308, 0 0 32px #fff1; }
-      100% { box-shadow: 0 0 40px #f472b6, 0 0 80px #fff1; }
-    }
-    .proj { position: absolute; border-radius: 50%; pointer-events: none; }
-    .gatling { width: 12px; height: 2px; background: #fbbf24; box-shadow: 0 0 20px #fbbf24b0; }
-    .flak { width: 19px; height: 1px; background: #eab308; box-shadow: 0 0 24px #eab308b0; }
-    .laser { width: 7px; height: 4px; background: #818cf8; box-shadow: 0 0 20px #818cf8a0; }
-    .plasma { width: 17px; height: 2px; background: #06b6d4; box-shadow: 0 0 30px #06b6d4b0; }
-    .railgun { width: 8px; height: 70px; background: #64748b; box-shadow: 0 0 36px #64748bb0; }
-    .missile { width: 26px; height: 15px; background: #f59e42; border-radius: 5px; box-shadow: 0 0 22px #f59e42b0; border: 2px solid #a3e635; }
-    .banana { width: 31px; height: 13px; background: #fde047; border-radius: 10px 50px 30px 60px / 20px 40px 15px 30px; box-shadow: 0 0 12px #fef08a; border: 2px solid #a3e635; }
-    .wavegun { width: 17px; height: 17px; background: #38bdf8; border-radius: 50%; box-shadow: 0 0 22px #38bdf8b0; border: 2px solid #818cf8; }
-    .spammer { width: 7px; height: 12px; background: #fff; box-shadow: 0 0 8px #fff; border: 2px solid #f472b6; }
-    .potato { width: 22px; height: 7px; background: #fbbf24; border-radius: 60% 50% 70% 55%; box-shadow: 0 0 12px #fbbf24b0; border: 2px solid #eab308; }
-    .ice { width: 19px; height: 19px; background: #38bdf8; border-radius: 50%; box-shadow: 0 0 28px #7dd3fc; border: 2px solid #818cf8; }
-    .megaboom { width: 48px; height: 48px; background: #f472b6; border-radius: 50%; box-shadow: 0 0 60px #f472b6b0; border: 2px solid #e11d48; }
-    .upgrade-btn { background: #374151; color: #ececec; border-radius: 7px; border: 2px solid #94a3b8;
-      padding: 7px 18px; margin: 5px 3px 0 3px; font-size: 1em; font-family: inherit;
-      cursor: pointer; transition: background 0.15s, color 0.15s; }
-    .upgrade-btn:disabled { background: #22262c; color: #5a5a5a; cursor: not-allowed; border-color: #2a2a2a; }
-    #weaponMenu { margin: 2px 0 8px 0; text-align: center; }
-    ::selection { background: #a3e635; color: #191927; }
-    .selected-weapon { outline: 2px solid #a3e635; background: #1e293b !important; }
-    .progress-bar { width: 480px; height: 20px; background: #191927; border: 2px solid #a3e635; border-radius: 7px;
-      margin: 14px auto; position: relative; }
-    .progress { height: 100%; background: linear-gradient(90deg, #38bdf8, #a3e635); border-radius: 5px 0 0 5px; transition: width 0.2s; }
-    .progress-label { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-size: 1em; color: #fafaf9; width: 100%; text-align: center; }
-    .screen-flash { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; background: #f472b699; pointer-events: none; z-index: 9001; animation: flash 0.33s linear 1; }
-    @keyframes flash { 0% { opacity:1; } 90% { opacity:0.02; } 100% { opacity:0; } }
-    @keyframes border-glow {
-      0% { box-shadow: 0 0 60px #23232a, 0 0 120px #a3e63544, 0 0 0 #e11d48; }
-      100% { box-shadow: 0 0 100px #e11d48, 0 0 220px #f472b6, 0 0 24px #a3e635; }
-    }
-    /* Popup Level Up */
-    #chooseUpgradePopup, #forceWeaponPopup {
-      position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
-      background: rgba(25,25,39,0.92); z-index: 9999; display: flex; align-items: center; justify-content: center;
-      flex-direction: column; font-family: 'Comic Sans MS', cursive, sans-serif;
-      animation: popupIn 0.3s;
-    }
-    .popup-title { font-size: 2.2em; color: #a3e635; margin-bottom: 18px; letter-spacing: 1px; }
-    .popup-choices { display: flex; gap: 26px; }
-    .popup-choice {
-      background: #23232a; border: 3px solid #a3e635; border-radius: 18px; color: #fafaf9;
-      min-width: 180px; padding: 16px 12px 18px 12px; font-size: 1.15em; text-align: center; cursor: pointer;
-      box-shadow: 0 0 18px #a3e63566, 0 0 64px #f472b666;
-      transition: transform 0.12s, background 0.2s;
-    }
-    .popup-choice:hover { background: #a3e635; color: #23232a; transform: scale(1.06); }
-    #forceWeaponPopup .popup-choice {min-width:110px; font-size:1.08em;}
-    #forceWeaponPopup .popup-title {color:#f472b6;}
-    #forceWeaponPopup .force-btn {
-      background: #a3e635; color: #23232a; border: none; border-radius: 8px; font-size: 1.2em;
-      margin-top: 20px; padding: 7px 21px; font-family: inherit; cursor: pointer; font-weight: bold;
-      opacity: 0.97; box-shadow: 0 0 22px #a3e635cc;
-      transition: background 0.19s;
-    }
-    #forceWeaponPopup .force-btn:disabled { background: #22262c; color: #bababa; box-shadow: none; cursor:not-allowed; }
-    @keyframes popupIn { from { opacity:0; } to { opacity:1; } }
+   
   </style>
 </head>
 <body>
   <h1>laser</h1>
   <div class="stat-panel">
-    <div class="stat-line"><span>Crystals:</span><span id="txtCrystals" class="stat-val" style="color:#eab308;">30</span></div>
-    <div class="stat-line"><span>Hull:</span><span id="txtHP" class="stat-val" style="color:#ef4444;">100%</span></div>
-    <div class="stat-line"><span>Wave:</span><span id="txtWave" class="stat-val" style="color:#22c55e;">1</span></div>
-    <div class="stat-line"><span>Weapons:</span><span id="txtWeapon" class="stat-val" style="color:#818cf8;">None</span></div>
-    <div class="stat-line"><span>Upgrades:</span><span id="txtUpgrades" class="stat-val" style="color:#f472b6;">0</span></div>
-    <div class="stat-line"><span>Turbo:</span><span id="txtTurbo" class="stat-val" style="color:#16a34a;">0</span></div>
-    <div class="stat-line"><span>Magnet:</span><span id="txtMagnet" class="stat-val" style="color:#f59e42;">0</span></div>
-    <div class="stat-line"><span>Double XP:</span><span id="txtDoubleXP" class="stat-val" style="color:#38bdf8;">0</span></div>
-    <div class="stat-line"><span>Auto Repair:</span><span id="txtAutoRepair" class="stat-val" style="color:#f87171;">0</span></div>
+
   </div>
   <div class="progress-bar">
     <div class="progress" id="progress" style="width: 0%"></div>
     <div class="progress-label" id="progressLabel">0 / 1000 XP</div>
   </div>
   <div style="text-align:center;">
-    <button class="upgrade-btn" id="btnWeaponSelect" onclick="openWeaponMenu()">Change 6 Weapons</button>
-    <div id="weaponMenu" style="display:none; margin-bottom:10px;"></div>
-    <button class="upgrade-btn" id="btnTurbo" onclick="buyTurbo()">Turbo (15)</button>
-    <button class="upgrade-btn" id="btnMagnet" onclick="buyMagnet()">Magnet (12)</button>
-    <button class="upgrade-btn" id="btnDoubleXP" onclick="buyDoubleXP()">Double XP (28)</button>
-    <button class="upgrade-btn" id="btnAutoRepair" onclick="buyAutoRepair()">Auto Repair (55)</button>
-    <button class="upgrade-btn" id="btnHull" onclick="upgradeHull()">Hull (+40)</button>
+
   </div>
   <div id="spaceField">
     <div id="playerShip"></div>
@@ -137,8 +44,8 @@ const WEAPON_LIST = [
   {name:'wavegun', key:'wavegun', desc:'wavy', css:'wavegun', dmg: 0.5},
   {name:'spammer', key:'spammer', desc:'spams', css:'spammer', dmg: 1},
   {name:'potato', key:'potato', desc:'it is potato', css:'potato', dmg: 1.4},
-  {name:'ice', key:'ice', desc:'makes stuff slow', css:'ice', dmg: 2},
-  {name:'megaboom', key:'megaboom', desc:'really big boom', css:'megaboom', dmg: 24}
+  {name:'ice', key:'ice', desc:'makes stuff slow', css:'ice', dmg: 7},
+  {name:'megaboom', key:'megaboom', desc:'really big boom', css:'megaboom', dmg: 10}
 ];
 const SPECIAL_UPGRADES = [
   {name:'Hull', key:'hull', desc:'+40 hull', type:'hull'},
@@ -148,7 +55,7 @@ const SPECIAL_UPGRADES = [
   {name:'Auto Repair', key:'autoRepair', desc:'regain health', type:'autoRepair'}
 ];
 let state = {
-  running: false, // game does not start until weapons picked!
+  running: false, 
   crystals: 30, hp: 100, wave: 1,
   ship: { x: 425, y: 600, speed: 8 },
   weapons: {},
@@ -200,7 +107,7 @@ function toggleWeapon(key) {
   openWeaponMenu();
   updateForceWeaponPopup();
 }
-// --- Force Weapon Pick at Start ---
+
 function showForceWeaponPopup() {
   let popup = document.getElementById('forceWeaponPopup');
   let list = document.getElementById('forceWeaponList');
@@ -233,7 +140,7 @@ function confirmWeapons() {
   spawnEnemyWave();
   setInterval(loop, 30);
 }
-// --- XP and ProgressBar ---
+ 
 function addXP(val) {
   state.xp += val;
   if(state.xp>=1000){
@@ -244,7 +151,7 @@ function addXP(val) {
 }
 function showChooseUpgradePopup() {
   state.running = false;
-  // pick 3 unique upgrades (from weapons & special upgrades)
+ 
   let allUpgs = [...WEAPON_LIST.map(w=>({type:'weapon', key:w.key, name:w.name, desc:w.desc})), ...SPECIAL_UPGRADES];
   let choices = [];
   while(choices.length<3){
@@ -266,7 +173,7 @@ function showChooseUpgradePopup() {
 function chooseUpgrade(opt) {
   let popup = document.getElementById('chooseUpgradePopup');
   popup.style.display='none';
-  // apply upgrade 5 times!
+  
   for(let i=0;i<5;i++){
     if(opt.type==='weapon'){
       state.weapons[opt.key]++;
@@ -390,13 +297,22 @@ function spawnEnemyWave() {
       el.className = 'enemy'; el.style.left = x + 'px'; el.style.top = y + 'px';
       el.style.background = `linear-gradient(135deg, ${etype.color}, #111827)`;
       document.getElementById('spaceField').appendChild(el);
-      entities.enemies.push({ el: el, x: x, y: y, hp: etype.hp+state.wave*3, type: etype, side:side });
+
+ 
+      entities.enemies.push({
+        el: el,
+        x: x,
+        y: y,
+        hp: Math.floor(etype.hp + state.wave * 3 + Math.pow(state.wave, 1.5)), // <-- changed line
+        type: etype,
+        side: side
+      });
+    
     }, i * 500);
   }
   setTimeout(() => { if (state.running) { state.wave++; updateUI(); spawnEnemyWave(); } }, 9000 + count * 400);
 }
-// --- FIRING: All 6 selected weapons at once, each looks unique & does unique damage ---
-// CHANGED: Now fires all weapons in all directions, not just one side.
+ 
 function fireWeapons() {
   if(state.selectedWeapons.length===0 || entities.enemies.length===0 || !state.running) return;
   let now = Date.now();
@@ -405,11 +321,11 @@ function fireWeapons() {
     let lvl = state.weapons[key];
     if (state.lastFire[key] && now - state.lastFire[key] < 270 - lvl*20) return;
     state.lastFire[key]=now;
-    // Fire in all directions (full circle)
-    let numProjectiles = 8; // number of directions per weapon; adjust for more/less spread
+     
+    let numProjectiles = 8;  
     for(let i=0;i<numProjectiles;i++) {
-      let angle = 2*Math.PI * (i/numProjectiles); // equally spaced around circle
-      let speed = 13 + 2*lvl;
+      let angle = 2*Math.PI * (i/numProjectiles); 
+      let speed = 5 + 2*lvl;
       let vx = Math.cos(angle)*speed, vy = Math.sin(angle)*speed;
       let dmg = weapon.dmg + lvl*2;
       fireProjectile(state.ship.x+25, state.ship.y+25, vx, vy, weapon.css, dmg, key);
@@ -424,21 +340,21 @@ function fireProjectile(x, y, vx, vy, css, dmg=1, weaponKey='') {
   document.getElementById('spaceField').appendChild(proj);
   entities.projectiles.push({ el: proj, x: x, y: y, vx: vx, vy: vy, dmg: dmg, css: css, weapon: weaponKey });
 }
-// --- UPDATE ENTITIES ---
+
 function updateEntities() {
-  // Move projectiles
+  
   for(let i=entities.projectiles.length-1;i>=0;i--){
     let l = entities.projectiles[i];
     l.y += l.vy; l.x += l.vx;
     l.el.style.top = l.y+'px';
     l.el.style.left = l.x+'px';
-    // Remove offscreen
+    
     if(l.y<-60||l.y>700||l.x<-60||l.x>900){ l.el.remove(); entities.projectiles.splice(i,1); }
   }
-  // Move enemies
+
   for(let i=entities.enemies.length-1;i>=0;i--){
     let e = entities.enemies[i];
-    // Move towards ship
+    
     let sx=state.ship.x+25, sy=state.ship.y+25;
     let dx = sx-e.x, dy = sy-e.y;
     let dist = Math.sqrt(dx*dx+dy*dy);
@@ -446,14 +362,14 @@ function updateEntities() {
     e.x += dx/dist*speed; e.y += dy/dist*speed;
     e.el.style.top = e.y+'px';
     e.el.style.left = e.x+'px';
-    // Remove if offscreen
+    
     if(e.y>720||e.y<-60||e.x>920||e.x<-60){ e.el.remove(); entities.enemies.splice(i,1); continue; }
-    // Check collision with projectiles
+    
     for(let j=entities.projectiles.length-1;j>=0;j--){
       let l = entities.projectiles[j];
       if(Math.abs(e.x-l.x)<28 && Math.abs(e.y-l.y)<24){
         e.hp-=l.dmg; 
-        //if(l.weapon==='megaboom') flashScreen();
+        
         l.el.remove(); entities.projectiles.splice(j,1);
         if(e.hp<=0){
           e.el.remove(); entities.enemies.splice(i,1);
@@ -465,7 +381,7 @@ function updateEntities() {
         break;
       }
     }
-    // Check collision with ship
+  
     if(Math.abs(e.x-(state.ship.x+25))<34 && Math.abs(e.y-(state.ship.y+25))<34){
       e.el.remove(); entities.enemies.splice(i,1);
       state.hp-=24;
@@ -483,10 +399,10 @@ function flashScreen() {
   document.body.appendChild(flash);
   setTimeout(()=>flash.remove(), 350);
 }
-// --- MAIN GAME LOOP ---
+
 function loop() {
   if (!state.running) return;
-  // Controls
+  
   if (state.keys['KeyA'] || state.keys['ArrowLeft']) state.ship.x = Math.max(0, state.ship.x - state.ship.speed);
   if (state.keys['KeyD'] || state.keys['ArrowRight']) state.ship.x = Math.min(850, state.ship.x + state.ship.speed);
   if (state.keys['KeyW'] || state.keys['ArrowUp']) state.ship.y = Math.max(0, state.ship.y - state.ship.speed);
@@ -497,7 +413,7 @@ function loop() {
   updateEntities();
 }
 updateUI();
-// Force weapon pick popup at start:
+
 window.onload = function() {
   showForceWeaponPopup();
 };
