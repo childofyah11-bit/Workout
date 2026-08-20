@@ -396,6 +396,7 @@ function spawnEnemyWave() {
   setTimeout(() => { if (state.running) { state.wave++; updateUI(); spawnEnemyWave(); } }, 9000 + count * 400);
 }
 // --- FIRING: All 6 selected weapons at once, each looks unique & does unique damage ---
+// CHANGED: Now fires all weapons in all directions, not just one side.
 function fireWeapons() {
   if(state.selectedWeapons.length===0 || entities.enemies.length===0 || !state.running) return;
   let now = Date.now();
@@ -404,12 +405,15 @@ function fireWeapons() {
     let lvl = state.weapons[key];
     if (state.lastFire[key] && now - state.lastFire[key] < 270 - lvl*20) return;
     state.lastFire[key]=now;
-    // spread fire directions for visible effect
-    let angle = Math.PI * (1 + (idx - (state.selectedWeapons.length-1)/2)/Math.max(1,state.selectedWeapons.length));
-    let speed = 13 + 2*lvl;
-    let vx = Math.cos(angle)*speed, vy = Math.sin(angle)*speed;
-    let dmg = weapon.dmg + lvl*2;
-    fireProjectile(state.ship.x+25, state.ship.y+25, vx, vy, weapon.css, dmg, key);
+    // Fire in all directions (full circle)
+    let numProjectiles = 8; // number of directions per weapon; adjust for more/less spread
+    for(let i=0;i<numProjectiles;i++) {
+      let angle = 2*Math.PI * (i/numProjectiles); // equally spaced around circle
+      let speed = 13 + 2*lvl;
+      let vx = Math.cos(angle)*speed, vy = Math.sin(angle)*speed;
+      let dmg = weapon.dmg + lvl*2;
+      fireProjectile(state.ship.x+25, state.ship.y+25, vx, vy, weapon.css, dmg, key);
+    }
   });
 }
 function fireProjectile(x, y, vx, vy, css, dmg=1, weaponKey='') {
