@@ -3,253 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fighter Simulator</title>
+    <title>Defense</title>
     <style>
         body {
-            background-color: #0b0f19;
-            color: #ffffff;
-            font-family: 'Courier New', Courier, monospace;
-            text-align: center;
+            background-color: #030712;
+            color: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
-            overflow: hidden;
+            padding: 15px;
+            text-align: center;
             user-select: none;
+            overflow: hidden;
         }
         h1 {
-            color: #38bdf8;
-            margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+            color: #06b6d4;
+            font-size: 2rem;
+            margin: 5px 0;
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
         }
-        #gameContainer {
+        #uiContainer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            max-width: 900px;
+            margin: 5px auto;
+        }
+        #gameBounds {
             position: relative;
             width: 600px;
-            height: 450px;
-            margin: 10px auto;
-            border: 4px solid #38bdf8;
-            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            height: 480px;
+            border: 3px solid #1f2937;
+            background: radial-gradient(circle at center, #111827 0%, #030712 100%);
             border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
-        canvas {
-            display: block;
-            background: transparent;
+        #shopPanel {
+            width: 260px;
+            background-color: #111827;
+            border: 3px solid #1f2937;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        .controls {
-            margin-top: 15px;
-            color: #94a3b8;
-            font-size: 0.9rem;
+        .shop-title {
+            color: #eab308;
+            font-weight: bold;
+            border-bottom: 1px solid #374151;
+            padding-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        .shop-item {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .shop-details { font-size: 0.85rem; color: #9ca3af; }
+        .shop-name { color: #f3f4f6; font-weight: bold; }
+        .btn-buy {
+            background-color: #06b6d4;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .btn-buy:hover { background-color: #0891b2; }
+        .btn-buy:disabled { background-color: #4b5563; color: #9ca3af; cursor: not-allowed; }
+        .controls-hint {
+            margin-top: 8px;
+            color: #6b7280;
+            font-size: 0.85rem;
         }
         .key {
-            background-color: #334155;
-            color: #f8fafc;
-            padding: 2px 8px;
+            background-color: #1f2937;
+            padding: 2px 6px;
             border-radius: 4px;
-            border: 1px solid #475569;
+            color: #f3f4f6;
         }
     </style>
 </head>
 <body>
 
-    <h1>SKY FIGHTER</h1>
-    <div id="gameContainer">
-        <canvas id="gameCanvas" width="600" height="450"></canvas>
+    <h1>🚀 STARSHIP GUARDIAN</h1>
+    
+    <div id="uiContainer">
+        <div id="gameBounds">
+            <canvas id="canvas" width="600" height="480"></canvas>
+        </div>
+        
+        <div id="shopPanel">
+            <div class="shop-title">💎 UPGRADE BAY (Crystals: <span id="crystalCount">0</span>)</div>
+            
+            <div class="shop-item">
+                <div>
+                    <div class="shop-name">Gatling Plasma</div>
+                    <div class="shop-details" id="gatlingDesc">Level 0: Rapid Fire</div>
+                </div>
+                <button class="btn-buy" id="btnGatling" onclick="buyWeapon('gatling')">Buy: 50</button>
+            </div>
+
+            <div class="shop-item">
+                <div>
+                    <div class="shop-name">Flak Cannon</div>
+                    <div class="shop-details" id="flakDesc">Level 0: AoE Explosions</div>
+                </div>
+                <button class="btn-buy" id="btnFlak" onclick="buyWeapon('flak')">Buy: 120</button>
+            </div>
+
+            <div class="shop-item">
+                <div>
+                    <div class="shop-name">EMP Tesla Beam</div>
+                    <div class="shop-details" id="empDesc">Level 0: Chaining Arc</div>
+                </div>
+                <button class="btn-buy" id="btnEmp" onclick="buyWeapon('emp')">Buy: 200</button>
+            </div>
+            
+            <div style="font-size:0.85rem; color:#a1a1aa; margin-top:auto;">
+                <strong>Core Health:</strong> <span id="hpText" style="color:#ef4444; font-weight:bold;">100%</span><br>
+                <strong>Sector Wave:</strong> <span id="waveText" style="color:#22c55e; font-weight:bold;">1</span>
+            </div>
+        </div>
     </div>
 
-    <div class="controls">
-        <span class="key">←</span> <span class="key">→</span> to Move | <span class="key">SPACEBAR</span> to Shoot Bullets
+    <div class="controls-hint">
+        Use <span class="key">W</span> <span class="key">A</span> <span class="key">S</span> <span class="key">D</span> or Arrow Keys to navigate your platform. Mounted systems fire automatically!
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        // Game Entities
-        const player = {
-            x: 275,
-            y: 380,
-            width: 40,
-            height: 35,
-            speed: 6,
-            score: 0,
-            health: 100
-        };
-
-        let bullets = [];
-        let enemies = [];
-        let particles = [];
-        let gameActive = true;
+        // Engine State variables
+        let gameRunning = true;
+        let crystals = 30; // Starting fund allowance
+        let currentWave = 1;
         let keys = {};
 
-        // Track Controls
-        window.addEventListener('keydown', (e) => { keys[e.code] = true; });
-        window.addEventListener('keyup', (e) => { keys[e.code] = false; });
+        const starship = {
+            x: 275, y: 350, w: 50, h: 50, speed: 5, hp: 100,
+            weapons: {
+                gatling: { lvl: 0, cost: 50, lastFire: 0, cd: 400 },
+                flak: { lvl: 0, cost: 120, lastFire: 0, cd: 1200 },
+                emp: { lvl: 0, cost: 200, lastFire: 0, cd: 2000 }
+            }
+        };
 
-        function spawnEnemy() {
-            if (!gameActive) return;
-            enemies.push({
-                x: Math.random() * (canvas.width - 40),
-                y: -40,
-                width: 35,
-                height: 30,
-                speed: 2 + Math.random() * 3
-            });
-            // Schedule next enemy spawn randomly
-            setTimeout(spawnEnemy, 1000 + Math.random() * 1500);
+        let projectiles = [];
+        let enemies = [];
+        let items = [];
+        let animations = [];
+
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        function buyWeapon(type) {
+            let wp = starship.weapons[type];
+            if (crystals >= wp.cost) {
+                crystals -= wp.cost;
+                wp.lvl++;
+                wp.cost = Math.floor(wp.cost * 1.6);
+                
+                // Adjust fire cadences per upgrade iteration
+                if (type === 'gatling') wp.cd = Math.max(150, wp.cd - 60);
+                if (type === 'flak') wp.cd = Math.max(600, wp.cd - 150);
+                
+                updateShopUI();
+            }
         }
 
-        function createExplosion(x, y) {
-            for (let i = 0; i < 8; i++) {
-                particles.push({
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 4,
-                    vy: (Math.random() - 0.5) * 4,
-                    alpha: 1,
-                    color: Math.random() > 0.5 ? '#f97316' : '#ef4444'
-                });
+        function updateShopUI() {
+            document.getElementById('crystalCount').innerText = crystals;
+            document.getElementById('hpText').innerText = `${starship.hp}%`;
+            document.getElementById('waveText').innerText = currentWave;
+
+            // Gatling Render Updates
+            let g = starship.weapons.gatling;
+            document.getElementById('gatlingDesc').innerText = g.lvl > 0 ? `Level ${g.lvl} / Rate: ${(1000/g.cd).toFixed(1)}/s` : "Unmounted";
+            document.getElementById('btnGatling').innerText = g.lvl > 0 ? `Upgrade: ${g.cost}` : `Mount: ${g.cost}`;
+            document.getElementById('btnGatling').disabled = crystals < g.cost;
+
+            // Flak Cannon Updates
+            let f = starship.weapons.flak;
+            document.getElementById('flakDesc').innerText = f.lvl > 0 ? `Level ${f.lvl} / Splash: ${40 + f.lvl*10}px` : "Unmounted";
+            document.getElementById('btnFlak').innerText = f.lvl > 0 ? `Upgrade: ${f.cost}` : `Mount: ${f.cost}`;
+            document.getElementById('btnFlak').disabled = crystals < f.cost;
+
+            // EMP Updates
+            let e = starship.weapons.emp;
+            document.getElementById('empDesc').innerText = e.lvl > 0 ? `Level ${e.lvl} / Targets: ${1 + e.lvl}` : "Unmounted";
+            document.getElementById('btnEmp').innerText = e.lvl > 0 ? `Upgrade: ${e.cost}` : `Mount: ${e.cost}`;
+            document.getElementById('btnEmp').disabled = crystals < e.cost;
+        }
+
+        function spawnWave() {
+            if (!gameRunning) return;
+            let count = 4 + currentWave * 3;
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    enemies.push({
+                        x: Math.random() * (canvas.width - 30),
+                        y: -30, w: 26, h: 26,
+                        hp: 15 + currentWave * 8,
+                        maxHp: 15 + currentWave * 8,
+                        speed: 1.2 + Math.random() * 1.5,
+                        type: Math.random() > 0.75 ? 'heavy' : 'scout'
+                    });
+                }, i * 600);
             }
+            // Chain trigger next macro sequence block wave
+            setTimeout(() => {
+                if (gameRunning) {
+                    currentWave++;
+                    spawnWave();
+                }
+            }, 15000 + count * 600);
+        }
+
+        function findClosestEnemy(src, range) {
+            let closest = null;
+            let minDist = range;
+            enemies.forEach(e => {
+                let d = Math.hypot(e.x - src.x, e.y - src.y);
+                if (d < minDist) {
+                    minDist = d;
+                    closest = e;
+                }
+            });
+            return closest;
         }
 
         function update() {
-            if (!gameActive) return;
+            // Starship Core Controls Translation Matrix
+            if (keys['KeyA'] || keys['ArrowLeft']) if (starship.x > 0) starship.x -= starship.speed;
+            if (keys['KeyD'] || keys['ArrowRight']) if (starship.x < canvas.width - starship.w) starship.x += starship.speed;
+            if (keys['KeyW'] || keys['ArrowUp']) if (starship.y > 0) starship.y -= starship.speed;
+            if (keys['KeyS'] || keys['ArrowDown']) if (starship.y < canvas.height - starship.h) starship.y += starship.speed;
 
-            // Player movement
-            if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
-            if (keys['ArrowRight'] && player.x < canvas.width - player.width) player.x += player.speed;
-            
-            // Shooting limits throttle
-            if (keys['Space'] && (bullets.length === 0 || bullets[bullets.length - 1].y < player.y - 20)) {
-                bullets.push({ x: player.x + player.width / 2 - 2, y: player.y, speed: 8 });
-                keys['Space'] = false; // Require tap or delay
-            }
+            let now = Date.now();
 
-            // Move bullets
-            bullets.forEach((b, index) => {
-                b.y -= b.speed;
-                if (b.y < 0) bullets.splice(index, 1);
-            });
-
-            // Move enemies
-            enemies.forEach((e, eIdx) => {
-                e.y += e.speed;
-                
-                // Check edge crash loss condition
-                if (e.y > canvas.height) {
-                    enemies.splice(eIdx, 1);
-                    player.health -= 20;
-                    if (player.health <= 0) gameActive = false;
-                }
-
-                // Check collision with player plane
-                if (e.x < player.x + player.width &&
-                    e.x + e.width > player.x &&
-                    e.y < player.y + player.height &&
-                    e.y + e.height > player.y) {
-                    enemies.splice(eIdx, 1);
-                    createExplosion(e.x + 15, e.y + 15);
-                    player.health -= 34;
-                    if (player.health <= 0) gameActive = false;
-                }
-
-                // Bullet hit validation checks
-                bullets.forEach((b, bIdx) => {
-                    if (b.x < e.x + e.width &&
-                        b.x + 4 > e.x &&
-                        b.y < e.y + e.height &&
-                        b.y + 8 > e.y) {
-                        createExplosion(e.x + 15, e.y + 15);
-                        enemies.splice(eIdx, 1);
-                        bullets.splice(bIdx, 1);
-                        player.score += 100;
-                    }
-                });
-            });
-
-            // Manage explosion particles fading
-            particles.forEach((p, pIdx) => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.alpha -= 0.04;
-                if (p.alpha <= 0) particles.splice(pIdx, 1);
-            });
-        }
-
-        function drawPlane(x, y, color, isPlayer) {
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            if (isPlayer) {
-                // Retro Fighter Plane Vector Design
-                ctx.moveTo(x + 20, y); // Nose
-                ctx.lineTo(x + 35, y + 25); // Right wing tip
-                ctx.lineTo(x + 25, y + 25);
-                ctx.lineTo(x + 20, y + 35); // Tail
-                ctx.lineTo(x + 15, y + 25);
-                ctx.lineTo(x + 5, y + 25); // Left wing tip
-            } else {
-                // Enemy Attacker downward wing profile
-                ctx.moveTo(x + 17, y + 30); // Nose down
-                ctx.lineTo(x + 35, y + 5); 
-                ctx.lineTo(x + 22, y + 5);
-                ctx.lineTo(x + 17, y); // Tail up
-                ctx.lineTo(x + 12, y + 5);
-                ctx.lineTo(x, y + 5);
-            }
-            ctx.closePath();
-            ctx.fill();
-        }
-
-        function render() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (!gameActive) {
-                ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#ef4444';
-                ctx.font = '24px "Courier New"';
-                ctx.fillText("🚨 MISSION FAILED 🚨", 170, 200);
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(`FINAL SCORE: ${player.score}`, 200, 240);
-                ctx.font = '14px "Courier New"';
-                ctx.fillText("Refresh browser page to deploy again.", 160, 280);
-                return;
-            }
-
-            // Draw game metrics panels
-            ctx.fillStyle = '#38bdf8';
-            ctx.font = '14px "Courier New"';
-            ctx.fillText(`SCORE: ${player.score}`, 20, 30);
-            ctx.fillStyle = player.health > 40 ? '#22c55e' : '#ef4444';
-            ctx.fillText(`ARMOR: ${Math.max(0, player.health)}%`, 470, 30);
-
-            // Draw player model
-            drawPlane(player.x, player.y, '#38bdf8', true);
-
-            // Draw active bullets
-            ctx.fillStyle = '#fbbf24';
-            bullets.forEach(b => ctx.fillRect(b.x, b.y, 4, 10));
-
-            // Draw active enemies
-            enemies.forEach(e => drawPlane(e.x, e.y, '#f43f5e', false));
-
-            // Draw fading particles 
-            particles.forEach(p => {
-                ctx.save();
-                ctx.globalAlpha = p.alpha;
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, 4, 4);
-                ctx.restore();
-            });
-        }
-
-        function gameLoop() {
-            update();
-            render();
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Initialize game deployment
-        spawnEnemy();
-        gameLoop();
-    </script>
-</body>
-</html>
+            // --- AUTOMATED DEFENSE TURRET AI SCHEDULERS ---
+            // 1. Plasma Gatling Deployment
+            if (starship.weapons.gatling.lvl > 0 && now - starship.weapons.gatling.lastFire > starship.weapons.gatling.cd) {
+                let target = findClosestEnemy(starship, 300);
+                if (target) {
