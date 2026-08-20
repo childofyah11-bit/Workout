@@ -2,473 +2,364 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>0101101110</title>
+  <title>idklol</title>
   <style>
-    html, body {
+    body {
+      background: #23232a;
+      color: #fafaf9;
+      font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif;
       margin: 0;
       padding: 0;
-      background: #030712;
-      color: #f3f4f6;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      min-height: 100vh;
-      user-select: none;
-      overflow: hidden;
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      padding: 20px 0;
     }
     h1 {
-      color: #06b6d4;
-      text-shadow: 0 0 15px rgba(6,182,212,0.6);
-      letter-spacing: 2px;
-      margin-bottom: 10px;
-      font-size: 2.2rem;
-    }
-    #gameInterface {
-      display: flex;
-      gap: 30px;
-      background: linear-gradient(145deg, #111827, #0f172a);
-      padding: 20px;
-      border-radius: 16px;
-      border: 2px solid #1f2937;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    #spaceField {
-      position: relative;
-      width: 400px;
-      height: 500px;
-      background-color: #090d16;
-      background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px);
-      background-size: 550px 550px;
-      border: 2px solid #374151;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    #playerShip, .enemy, .laser {
-      position: absolute;
-    }
-    #playerShip {
-      width: 40px;
-      height: 40px;
-      background-color: #06b6d4;
-      border-radius: 50% 50% 15% 15%;
-      box-shadow: 0 0 20px #06b6d4;
-      z-index: 5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .enemy {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, #f87171, #ef4444);
-      border-radius: 50%;
-      box-shadow: 0 0 12px #ef4444;
-      z-index: 4;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .laser {
-      width: 6px;
-      height: 18px;
-      background-color: #4ade80;
-      border-radius: 99px;
-      box-shadow: 0 0 10px #22c55e;
-      z-index: 3;
-    }
-    #controlBay {
-      width: 220px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
+      text-align: center;
+      font-size: 2.2em;
+      margin: 24px 0 8px 0;
+      letter-spacing: 1px;
+      color: #a3e635;
     }
     .stat-panel {
-      background-color: #1f2937;
-      padding: 15px;
+      background: #28283a;
       border-radius: 10px;
-      border: 1px solid #374151;
-      font-size: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      width: 330px;
+      margin: 12px auto 10px auto;
+      padding: 8px 0 10px 0;
+      box-shadow: 0 6px 20px #1115  ;
     }
     .stat-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 2px 18px;
+      font-size: 1.02em;
     }
     .stat-val { font-weight: bold; }
-    .upgrade-btn {
-      width: 100%;
-      background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
+    #spaceField {
+      width: 500px; height: 480px; background: #191927; border-radius: 18px;
+      margin: 18px auto 8px auto; position: relative; overflow: hidden;
+      box-shadow: 0 0 60px #23232a, 0 0 120px #a3e63544;
+      border: 2px solid #a3e635;
     }
-    .upgrade-btn:hover:not(:disabled) {
-      background: linear-gradient(to bottom, #2563eb, #1e40af);
-      transform: translateY(-1px);
+    #playerShip {
+      width: 40px; height: 40px;
+      position: absolute; left: 230px; top: 380px;
+      background: url('https://em-content.zobj.net/source/twitter/376/rocket_1f680.png') no-repeat center/cover;
+      z-index: 1;
+      transition: box-shadow 0.2s;
+    }
+    .enemy {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      position: absolute;
+      background: #ef4444;
+      border: 2px solid #fafaf9;
+      box-shadow: 0 0 16px #eab308,
+                  0 0 32px #fff1;
+    }
+    .laser {
+      width: 7px; height: 20px;
+      border-radius: 3px;
+      position: absolute; background: #818cf8;
+      left: 0; top: 0;
+      box-shadow: 0 0 10px #818cf8a0;
+    }
+    .upgrade-btn {
+      background: #374151;
+      color: #ececec;
+      border-radius: 7px;
+      border: 2px solid #94a3b8;
+      padding: 7px 18px;
+      margin: 5px 3px 0 3px;
+      font-size: 1em;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
     }
     .upgrade-btn:disabled {
-      background: #374151;
-      color: #6b7280;
+      background: #22262c;
+      color: #5a5a5a;
       cursor: not-allowed;
+      border-color: #2a2a2a;
     }
-    #gameOverOverlay, #pauseOverlay {
-      display: none;
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background-color: rgba(3, 7, 18, 0.95);
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-      backdrop-filter: blur(4px);
+    #weaponMenu {
+      margin: 2px 0 8px 0;
+      text-align: center;
     }
-    #gameOverOverlay.active, #pauseOverlay.active {
-      display: flex;
-    }
-    #instructions {
-      max-width: 480px;
-      font-size: 1rem;
-      color: #9ca3af;
-      background: #1f2937;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 24px;
-      line-height: 1.6;
-      border: 1px solid #374151;
-    }
-    @media (max-width: 900px) {
-      #gameInterface { flex-direction: column; align-items: center; }
-      #spaceField { margin-bottom: 20px; }
-    }
-    @media (max-width: 500px) {
-      #spaceField { width: 95vw; min-width: 240px; }
-      #controlBay { width: 90vw; min-width: 180px; }
-      #instructions { font-size: 0.95rem; }
-      h1 { font-size: 1.4rem; }
-    }
+    /* Fun look */
+    ::selection { background: #a3e635; color: #191927; }
   </style>
 </head>
 <body>
-  <h1>🚀 STARSHIP GUARDIAN MATRIX</h1>
-  <div id="instructions">
-    <strong>Move</strong>: WASD or Arrow Keys<br>
-    <strong>Pause</strong>: Press <kbd>P</kbd><br>
-    <strong>Shoot</strong>: Weapons fire automatically<br>
-    <strong>Objective</strong>: Survive as many enemy waves as possible. Upgrade your ship to last longer!<br>
-    <strong>Tip</strong>: Play full screen for best experience.<br>
+  <h1>laser</h1>
+  <div class="stat-panel">
+    <div class="stat-line"><span>Crystals:</span><span id="txtCrystals" class="stat-val" style="color:#eab308;">30</span></div>
+    <div class="stat-line"><span>Hull:</span><span id="txtHP" class="stat-val" style="color:#ef4444;">100%</span></div>
+    <div class="stat-line"><span>Wave:</span><span id="txtWave" class="stat-val" style="color:#22c55e;">1</span></div>
+    <div class="stat-line"><span>Weapon:</span><span id="txtWeapon" class="stat-val" style="color:#818cf8;">None</span></div>
+    <div class="stat-line"><span>Upgrades:</span><span id="txtUpgrades" class="stat-val" style="color:#f472b6;">0</span></div>
+    <div class="stat-line"><span>Turbo:</span><span id="txtTurbo" class="stat-val" style="color:#16a34a;">0</span></div>
+    <div class="stat-line"><span>Magnet:</span><span id="txtMagnet" class="stat-val" style="color:#f59e42;">0</span></div>
+    <div class="stat-line"><span>Double XP:</span><span id="txtDoubleXP" class="stat-val" style="color:#38bdf8;">0</span></div>
+    <div class="stat-line"><span>Auto Repair:</span><span id="txtAutoRepair" class="stat-val" style="color:#f87171;">0</span></div>
   </div>
-  <div id="gameInterface">
-    <div id="spaceField">
-      <div id="playerShip"></div>
-      <div id="gameOverOverlay">
-        <h2 style="color:#ef4444; font-size:2.2rem; margin-bottom:10px;">CORE CRITICAL</h2>
-        <p style="color:#9ca3af; margin-bottom:25px;">Command Ship Destroyed<br/>Wave: <span id="finalWave"></span><br/>Score: <span id="finalScore"></span></p>
-        <button class="upgrade-btn" style="width:160px;" onclick="window.location.reload()">REDEPLOY</button>
-      </div>
-      <div id="pauseOverlay">
-        <h2 style="color:#22d3ee; font-size:2.2rem; margin-bottom:10px;">PAUSED</h2>
-        <p style="color:#9ca3af;">Press <kbd>P</kbd> to resume.</p>
-      </div>
-    </div>
-    <div id="controlBay">
-      <div class="stat-panel">
-        <div class="stat-line"><span>Crystals:</span><span id="txtCrystals" class="stat-val" style="color:#eab308;">30</span></div>
-        <div class="stat-line"><span>Hull:</span><span id="txtHP" class="stat-val" style="color:#ef4444;">100%</span></div>
-        <div class="stat-line"><span>Wave:</span><span id="txtWave" class="stat-val" style="color:#22c55e;">1</span></div>
-        <div class="stat-line"><span>Score:</span><span id="txtScore" class="stat-val" style="color:#f9fafb;">0</span></div>
-        <div class="stat-line"><span>High Score:</span><span id="txtHighScore" class="stat-val" style="color:#38bdf8;">0</span></div>
-      </div>
-      <button class="upgrade-btn" id="btnGatling" onclick="upgradeWeapon('gatling')">Mount Gatling (Cost: 30)</button>
-      <button class="upgrade-btn" id="btnFlak" onclick="upgradeWeapon('flak')">Mount Flak (Cost: 75)</button>
-      <button class="upgrade-btn" id="btnHull" onclick="upgradeWeapon('hull')">Reinforce Hull (Cost: 40)</button>
-    </div>
+  <div style="text-align:center;">
+    <button class="upgrade-btn" id="btnWeaponSelect" onclick="openWeaponMenu()">Change Weapon</button>
+    <div id="weaponMenu" style="display:none; margin-bottom:10px;"></div>
+    <button class="upgrade-btn" id="btnUpgradeWeapon" onclick="upgradeSelectedWeapon()">Upgrade Weapon</button>
+    <button class="upgrade-btn" id="btnTurbo" onclick="buyTurbo()">Turbo (15)</button>
+    <button class="upgrade-btn" id="btnMagnet" onclick="buyMagnet()">Magnet (12)</button>
+    <button class="upgrade-btn" id="btnDoubleXP" onclick="buyDoubleXP()">Double XP (28)</button>
+    <button class="upgrade-btn" id="btnAutoRepair" onclick="buyAutoRepair()">Auto Repair (55)</button>
+    <button class="upgrade-btn" id="btnHull" onclick="upgradeHull()">Hull (+40)</button>
+  </div>
+  <div id="spaceField">
+    <div id="playerShip"></div>
   </div>
   <script>
-    // GAME STATE
-    const field = document.getElementById('spaceField');
-    const shipEl = document.getElementById('playerShip');
-    const gameOverOverlay = document.getElementById('gameOverOverlay');
-    const pauseOverlay = document.getElementById('pauseOverlay');
-    const txtCrystals = document.getElementById('txtCrystals');
-    const txtHP = document.getElementById('txtHP');
-    const txtWave = document.getElementById('txtWave');
-    const txtScore = document.getElementById('txtScore');
-    const txtHighScore = document.getElementById('txtHighScore');
-    const finalWave = document.getElementById('finalWave');
-    const finalScore = document.getElementById('finalScore');
-    let highScore = parseInt(localStorage.getItem('sgm_highscore')) || 0;
-    let playing = true;
-    let paused = false;
-
-    let state = {
-      running: true,
-      crystals: 30,
-      hp: 100,
-      wave: 1,
-      score: 0,
-      ship: { x: 180, y: 430, speed: 6, width: 40, height: 40 },
-      weapons: { gatling: 0, flak: 0 },
-      costs: { gatling: 30, flak: 75, hull: 40 },
-      keys: {},
-      lastGatling: 0,
-      lastFlak: 0
-    };
-
-    let entities = { enemies: [], lasers: [] };
-
-    // Event Listeners
-    window.addEventListener('keydown', e => {
-      if(e.key === 'p' || e.key === 'P') {
-        togglePause();
-      } else {
-        state.keys[e.code] = true;
-      }
-    });
-    window.addEventListener('keyup', e => state.keys[e.code] = false);
-
-    function togglePause() {
-      paused = !paused;
-      if(paused) {
-        pauseOverlay.classList.add('active');
-      } else {
-        pauseOverlay.classList.remove('active');
-      }
-    }
-
-    // UPGRADE SYSTEM
-    function upgradeWeapon(type) {
-      if (state.crystals >= state.costs[type]) {
-        state.crystals -= state.costs[type];
-        if (type === 'hull') {
-          state.hp = Math.min(100, state.hp + 40);
-          state.costs.hull = Math.floor(state.costs.hull * 1.5);
-        } else {
-          state.weapons[type]++;
-          state.costs[type] = Math.floor(state.costs[type] * 1.7);
-        }
-        updateUI();
-      }
-    }
-
-    // UI UPDATE
-    function updateUI() {
-      txtCrystals.innerText = state.crystals;
-      txtHP.innerText = Math.max(0, state.hp) + '%';
-      txtWave.innerText = state.wave;
-      txtScore.innerText = state.score;
-      txtHighScore.innerText = highScore;
-      document.getElementById('btnGatling').innerText =
-        state.weapons.gatling > 0 ? `Upgrade Gatling (${state.costs.gatling})` : `Mount Gatling (${state.costs.gatling})`;
-      document.getElementById('btnGatling').disabled = state.crystals < state.costs.gatling;
-      document.getElementById('btnFlak').innerText =
-        state.weapons.flak > 0 ? `Upgrade Flak (${state.costs.flak})` : `Mount Flak (${state.costs.flak})`;
-      document.getElementById('btnFlak').disabled = state.crystals < state.costs.flak;
-      document.getElementById('btnHull').innerText = `Reinforce Hull (${state.costs.hull})`;
-      document.getElementById('btnHull').disabled = state.crystals < state.costs.hull;
-    }
-
-    // ENEMY SPAWN
-    function spawnEnemyWave() {
+// --- 14-year-old Edition ---
+const WEAPON_LIST = [
+  {name:'gatling', key:'gatling', desc:'it shoots fast'},
+  {name:'flak', key:'flak', desc:'a bunch of boom'},
+  {name:'laser', key:'laser', desc:'pew pew, long'},
+  {name:'plasma', key:'plasma', desc:'blue stuff'},
+  {name:'railgun', key:'railgun', desc:'big line'},
+  {name:'missile', key:'missile', desc:'goes after dudes'},
+  {name:'banana', key:'banana', desc:'just a banana'},
+  {name:'wavegun', key:'wavegun', desc:'wavy'},
+  {name:'spammer', key:'spammer', desc:'spams'},
+  {name:'potato', key:'potato', desc:'it is potato'},
+  {name:'ice', key:'ice', desc:'makes stuff slow'},
+  {name:'megaboom', key:'megaboom', desc:'really big boom'}
+];
+let state = {
+  running: true, crystals: 30, hp: 100, wave: 1,
+  ship: { x: 230, y: 380, speed: 6 },
+  weapons: {}, // {key:level}
+  selectedWeapon: null,
+  upgrades: 0,
+  turbo: 0,
+  magnet: 0,
+  doubleXP: 0,
+  autoRepair: 0,
+  costs: {},
+  keys: {},
+  lastFire: {},
+};
+WEAPON_LIST.forEach((w,i)=>{
+  state.weapons[w.key]=0;
+  state.costs[w.key]=30+Math.floor(i*10);
+  state.lastFire[w.key]=0;
+});
+state.costs.hull=40;
+state.costs.turbo=15;
+state.costs.magnet=12;
+state.costs.doubleXP=28;
+state.costs.autoRepair=55;
+let entities = {
+  enemies: [],
+  lasers: [],
+  missiles: [],
+  effects: [],
+};
+window.addEventListener('keydown', e => state.keys[e.code] = true);
+window.addEventListener('keyup', e => state.keys[e.code] = false);
+function openWeaponMenu() {
+  const menu = document.getElementById('weaponMenu');
+  menu.innerHTML = WEAPON_LIST.map(w =>
+    `<button onclick="selectWeapon('${w.key}')" style='margin:2px;padding:4px 12px;border-radius:6px;background:${state.weapons[w.key]>0?'#22c55e':'#374151'};color:white;border:none;'>${w.name}${state.weapons[w.key]>0?' (Lv'+state.weapons[w.key]+')':''}</button>`
+  ).join(' ');
+  menu.style.display = menu.style.display==='none'?'block':'none';
+}
+function selectWeapon(key) {
+  state.selectedWeapon=key;
+  document.getElementById('weaponMenu').style.display='none';
+  updateUI();
+}
+function upgradeSelectedWeapon() {
+  if(!state.selectedWeapon) return;
+  upgradeWeapon(state.selectedWeapon);
+}
+function upgradeWeapon(type) {
+  if (state.crystals >= state.costs[type]) {
+    state.crystals -= state.costs[type];
+    state.weapons[type]++;
+    state.upgrades++;
+    state.costs[type] = Math.floor(state.costs[type] * 1.45);
+    if (!state.selectedWeapon) state.selectedWeapon = type;
+    updateUI();
+  }
+}
+function buyTurbo() {
+  if(state.crystals>=state.costs.turbo){
+    state.crystals-=state.costs.turbo;
+    state.turbo++;
+    state.ship.speed+=2;
+    state.costs.turbo=Math.floor(state.costs.turbo*2);
+    updateUI();
+  }
+}
+function buyMagnet() {
+  if(state.crystals>=state.costs.magnet){
+    state.crystals-=state.costs.magnet;
+    state.magnet++;
+    state.costs.magnet=Math.floor(state.costs.magnet*2);
+    updateUI();
+  }
+}
+function buyDoubleXP() {
+  if(state.crystals>=state.costs.doubleXP){
+    state.crystals-=state.costs.doubleXP;
+    state.doubleXP++;
+    state.costs.doubleXP=Math.floor(state.costs.doubleXP*2.5);
+    updateUI();
+  }
+}
+function buyAutoRepair() {
+  if(state.crystals>=state.costs.autoRepair){
+    state.crystals-=state.costs.autoRepair;
+    state.autoRepair++;
+    state.costs.autoRepair=Math.floor(state.costs.autoRepair*2.5);
+    updateUI();
+  }
+}
+function upgradeHull() {
+  if(state.crystals>=state.costs.hull){
+    state.crystals-=state.costs.hull;
+    state.hp = Math.min(100, state.hp + 40);
+    state.costs.hull = Math.floor(state.costs.hull * 1.5);
+    updateUI();
+  }
+}
+function updateUI() {
+  document.getElementById('txtCrystals').innerText = state.crystals;
+  document.getElementById('txtHP').innerText = state.hp + '%';
+  document.getElementById('txtWave').innerText = state.wave;
+  document.getElementById('txtWeapon').innerText = state.selectedWeapon?WEAPON_LIST.find(w=>w.key===state.selectedWeapon).name:'None';
+  document.getElementById('txtUpgrades').innerText = state.upgrades;
+  document.getElementById('txtTurbo').innerText = state.turbo;
+  document.getElementById('txtMagnet').innerText = state.magnet;
+  document.getElementById('txtDoubleXP').innerText = state.doubleXP;
+  document.getElementById('txtAutoRepair').innerText = state.autoRepair;
+  document.getElementById('btnUpgradeWeapon').innerText = state.selectedWeapon?`Upgrade ${WEAPON_LIST.find(w=>w.key===state.selectedWeapon).name} (${state.costs[state.selectedWeapon]})`:'Upgrade Weapon';
+  document.getElementById('btnUpgradeWeapon').disabled = !state.selectedWeapon || state.crystals < state.costs[state.selectedWeapon];
+  document.getElementById('btnTurbo').innerText = `Turbo (${state.costs.turbo})`;
+  document.getElementById('btnTurbo').disabled = state.crystals < state.costs.turbo;
+  document.getElementById('btnMagnet').innerText = `Magnet (${state.costs.magnet})`;
+  document.getElementById('btnMagnet').disabled = state.crystals < state.costs.magnet;
+  document.getElementById('btnDoubleXP').innerText = `Double XP (${state.costs.doubleXP})`;
+  document.getElementById('btnDoubleXP').disabled = state.crystals < state.costs.doubleXP;
+  document.getElementById('btnAutoRepair').innerText = `Auto Repair (${state.costs.autoRepair})`;
+  document.getElementById('btnAutoRepair').disabled = state.crystals < state.costs.autoRepair;
+  document.getElementById('btnHull').innerText = `Hull (+40) (${state.costs.hull})`;
+  document.getElementById('btnHull').disabled = state.crystals < state.costs.hull;
+}
+// --- ENEMY VARIETY ---
+const ENEMY_TYPES = [
+  {name:'Raider', hp:10, speed:2, color:'#ef4444'},
+  {name:'Tank', hp:40, speed:0.8, color:'#eab308'},
+  {name:'Swarm', hp:4, speed:3.3, color:'#a3e635'},
+  {name:'Dodger', hp:9, speed:2, dodge:true, color:'#38bdf8'},
+  {name:'Splitter', hp:12, speed:1.5, splits:2, color:'#f472b6'},
+  {name:'Bomber', hp:20, speed:1, drops:true, color:'#f59e42'},
+  {name:'Healer', hp:15, speed:1.2, heal:true, color:'#a21caf'},
+  {name:'Boss', hp:120, speed:0.7, boss:true, color:'#e11d48'},
+];
+function spawnEnemyWave() {
+  if (!state.running) return;
+  let count = 3 + state.wave * 2;
+  for(let i=0; i<count; i++) {
+    setTimeout(() => {
       if (!state.running) return;
-      let count = 3 + state.wave * 2;
-      for(let i=0; i<count; i++) {
-        setTimeout(() => {
-          if (!state.running) return;
-          let enemy = {
-            x: Math.random() * (field.clientWidth - 32),
-            y: -32,
-            vx: 0,
-            vy: 1.3 + state.wave*0.2 + Math.random()*0.2,
-            hp: 10 + state.wave * 7,
-            maxhp: 10 + state.wave * 7,
-            el: null
-          };
-          let el = document.createElement('div');
-          el.className = 'enemy';
-          el.style.left = enemy.x + 'px';
-          el.style.top = enemy.y + 'px';
-          enemy.el = el;
-          field.appendChild(el);
-          entities.enemies.push(enemy);
-        }, i * 400);
-      }
-      setTimeout(() => {
-        if (state.running) {
-          state.wave++;
-          updateUI();
-          spawnEnemyWave();
-        }
-      }, 9000 + count * 400);
-    }
-
-    // COLLISION DETECTION
-    function isColliding(a, b) {
-      return !(
-        a.x > b.x + b.width ||
-        a.x + a.width < b.x ||
-        a.y > b.y + b.height ||
-        a.y + a.height < b.y
-      );
-    }
-
-    // LASER SYSTEM
-    function fireTrackingLaser() {
-      if (entities.enemies.length === 0) return;
-      let now = Date.now();
-      if(state.weapons.gatling > 0 && now - state.lastGatling > 250 - state.weapons.gatling*30) {
-        fireLaser('gatling');
-        state.lastGatling = now;
-      }
-      if(state.weapons.flak > 0 && now - state.lastFlak > 600 - state.weapons.flak*60) {
-        fireLaser('flak');
-        state.lastFlak = now;
-      }
-    }
-    function fireLaser(type) {
-      // Find closest enemy
-      let sx = state.ship.x + state.ship.width/2 - 3;
-      let sy = state.ship.y;
-      let minDist = Infinity, closest = null;
-      for(let e of entities.enemies) {
-        let ex = e.x + 16, ey = e.y + 16;
-        let dist = Math.hypot(ex - sx, ey - sy);
-        if (dist < minDist) {
-          minDist = dist;
-          closest = e;
-        }
-      }
-      if(!closest) return;
-      let angle = Math.atan2(closest.y + 16 - sy, closest.x + 16 - sx);
-      let speed = type === 'flak' ? 5 : 9;
-      let laser = {
-        x: sx, y: sy, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed,
-        width: 6, height: 18, el: null, power: type === 'flak' ? 12 : 5
-      };
+      let etype = ENEMY_TYPES[Math.floor(Math.random() * Math.min(1+state.wave/4, ENEMY_TYPES.length))];
       let el = document.createElement('div');
-      el.className = 'laser';
-      el.style.left = laser.x + 'px';
-      el.style.top = laser.y + 'px';
-      laser.el = el;
-      field.appendChild(el);
-      entities.lasers.push(laser);
-    }
-
-    // MAIN GAME LOOP
-    function loop() {
-      if (!state.running || paused) return;
-      // Move player
-      let sp = state.ship.speed;
-      if (state.keys['KeyA'] || state.keys['ArrowLeft']) state.ship.x = Math.max(0, state.ship.x - sp);
-      if (state.keys['KeyD'] || state.keys['ArrowRight']) state.ship.x = Math.min(field.clientWidth - state.ship.width, state.ship.x + sp);
-      if (state.keys['KeyW'] || state.keys['ArrowUp']) state.ship.y = Math.max(0, state.ship.y - sp);
-      if (state.keys['KeyS'] || state.keys['ArrowDown']) state.ship.y = Math.min(field.clientHeight - state.ship.height, state.ship.y + sp);
-      shipEl.style.left = state.ship.x + 'px';
-      shipEl.style.top = state.ship.y + 'px';
-
-      // Fire lasers
-      fireTrackingLaser();
-
-      // Move lasers
-      for(let i=entities.lasers.length-1; i>=0; i--) {
-        let l = entities.lasers[i];
-        l.x += l.vx;
-        l.y += l.vy;
-        l.el.style.left = l.x + 'px';
-        l.el.style.top = l.y + 'px';
-        // Remove if out of bounds
-        if(l.x < -10 || l.x > field.clientWidth + 10 || l.y < -20 || l.y > field.clientHeight + 20) {
-          field.removeChild(l.el);
-          entities.lasers.splice(i,1);
-          continue;
-        }
-        // Collision with enemies
-        for(let j=entities.enemies.length-1; j>=0; j--) {
-          let e = entities.enemies[j];
-          if(Math.abs(l.x - e.x) < 22 && Math.abs(l.y - e.y) < 22) {
-            e.hp -= l.power;
-            if(e.hp <= 0) {
-              state.score += 100 + state.wave*20;
-              state.crystals += 10 + Math.floor(state.wave*1.2);
-              if(e.el.parentNode) field.removeChild(e.el);
-              entities.enemies.splice(j,1);
-            }
-            if(l.el.parentNode) field.removeChild(l.el);
-            entities.lasers.splice(i,1);
-            break;
-          }
-        }
-      }
-
-      // Move enemies
-      for(let i=entities.enemies.length-1; i>=0; i--) {
-        let e = entities.enemies[i];
-        e.y += e.vy;
-        e.el.style.left = e.x + 'px';
-        e.el.style.top = e.y + 'px';
-        // Collision with player
-        if(Math.abs(e.x + 16 - (state.ship.x + 20)) < 30 && Math.abs(e.y + 16 - (state.ship.y + 20)) < 28) {
-          state.hp -= 30;
-          if(e.el.parentNode) field.removeChild(e.el);
-          entities.enemies.splice(i,1);
-          if(state.hp <= 0) {
-            state.hp = 0;
-            endGame();
-            return;
-          }
-        }
-        // Remove if out of bounds
-        else if(e.y > field.clientHeight + 30) {
-          if(e.el.parentNode) field.removeChild(e.el);
-          entities.enemies.splice(i,1);
-        }
-      }
-      updateUI();
-    }
-
-    function endGame() {
-      state.running = false;
-      finalWave.innerText = state.wave;
-      finalScore.innerText = state.score;
-      gameOverOverlay.classList.add('active');
-      if(state.score > highScore) {
-        highScore = state.score;
-        localStorage.setItem('sgm_highscore', highScore);
-      }
-      updateUI();
-    }
-
-    // INIT
-    function init() {
-      shipEl.style.left = state.ship.x + 'px';
-      shipEl.style.top = state.ship.y + 'px';
-      updateUI();
-      spawnEnemyWave();
-      setInterval(() => { if(!paused && state.running) loop(); }, 30);
-    }
-    init();
-  </script>
-  <!--
-    Starship Guardian Matrix
-    - by YOU!
-    Host this file on GitHub Pages: https://pages.github.com/
-    Place it at the root of your repository.
-  -->
+      el.className = 'enemy'; el.style.left = Math.random() * 460 + 'px'; el.style.top = '-30px';
+      el.style.background = `linear-gradient(135deg, ${etype.color}, #111827)`;
+      document.getElementById('spaceField').appendChild(el);
+      entities.enemies.push({ el: el, x: Math.random() * 460, y: -30, hp: etype.hp+state.wave*2, type: etype });
+    }, i * 700);
+  }
+  setTimeout(() => { if (state.running) { state.wave++; updateUI(); spawnEnemyWave(); } }, 11000 + count * 600);
+}
+// --- BASIC WEAPON FIRING ---
+function fireWeapon() {
+  if (!state.selectedWeapon || entities.enemies.length===0) return;
+  let weapon = WEAPON_LIST.find(w=>w.key===state.selectedWeapon);
+  let lvl = state.weapons[state.selectedWeapon];
+  let now = Date.now();
+  if (state.lastFire[weapon.key] && now - state.lastFire[weapon.key] < 350 - lvl*35) return;
+  state.lastFire[weapon.key]=now;
+// All weapons just shoot one silly laser for now
+let ship = state.ship;
+fireProjectile(ship.x + 16, ship.y, 0, -10-2*lvl, '#fbbf24', 1+lvl);
+}
+function fireProjectile(x, y, vx, vy, color, dmg=1) {
+let laser = document.createElement('div');
+laser.className = 'laser'; laser.style.left = x + 'px'; laser.style.top = y + 'px';
+laser.style.background = color; laser.dataset.dmg = dmg;
+document.getElementById('spaceField').appendChild(laser);
+entities.lasers.push({ el: laser, x: x, y: y, vx: vx, vy: vy, dmg: dmg });
+}
+// --- UPDATE ENTITIES ---
+function updateEntities() {
+// Move lasers
+for(let i=entities.lasers.length-1;i>=0;i--){
+let l = entities.lasers[i];
+l.y += l.vy; l.x += l.vx;
+l.el.style.top = l.y+'px';
+l.el.style.left = l.x+'px';
+// Remove offscreen
+if(l.y<-20||l.y>480||l.x<-20||l.x>500){
+l.el.remove(); entities.lasers.splice(i,1);
+}
+}
+// Move enemies
+for(let i=entities.enemies.length-1;i>=0;i--){
+let e = entities.enemies[i];
+e.y += e.type.speed;
+e.el.style.top = e.y+'px';
+e.el.style.left = e.x+'px';
+// Remove if offscreen
+if(e.y>500){ e.el.remove(); entities.enemies.splice(i,1); }
+// Check collision with lasers
+for(let j=entities.lasers.length-1;j>=0;j--){
+let l = entities.lasers[j];
+if(Math.abs(e.x-l.x)<22 && Math.abs(e.y-l.y)<18){
+e.hp-=l.dmg; l.el.remove(); entities.lasers.splice(j,1);
+if(e.hp<=0){
+e.el.remove(); entities.enemies.splice(i,1);
+state.crystals+=6+Math.floor(Math.random()*7);
+updateUI();
+}
+break;
+}
+}
+// Check collision with ship
+let sx=state.ship.x, sy=state.ship.y;
+if(Math.abs(e.x-sx)<28 && Math.abs(e.y-sy)<28){
+e.el.remove(); entities.enemies.splice(i,1);
+state.hp-=18;
+if(state.hp<=0){
+alert('game over lol'); state.running=false;
+}
+updateUI();
+break;
+}
+}
+}
+// --- MAIN GAME LOOP ---
+function loop() {
+if (!state.running) return;
+// Controls
+if (state.keys['KeyA'] || state.keys['ArrowLeft']) state.ship.x = Math.max(0, state.ship.x - state.ship.speed);
+if (state.keys['KeyD'] || state.keys['ArrowRight']) state.ship.x = Math.min(460, state.ship.x + state.ship.speed);
+if (state.keys['KeyW'] || state.keys['ArrowUp']) state.ship.y = Math.max(0, state.ship.y - state.ship.speed);
+if (state.keys['KeyS'] || state.keys['ArrowDown']) state.ship.y = Math.min(440, state.ship.y + state.ship.speed);
+document.getElementById('playerShip').style.left = state.ship.x+'px';
+document.getElementById('playerShip').style.top = state.ship.y+'px';
+fireWeapon();
+updateEntities();
+}
+updateUI();
+spawnEnemyWave();
+setInterval(loop, 30);
+</script>
 </body>
 </html>
