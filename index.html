@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Relentless Critic</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 { color: #f85149; font-size: 3rem; margin-bottom: 10px; }
+        .status { font-size: 1.5rem; margin: 20px; color: #8b949e; }
+        .log {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+            max-width: 500px;
+            margin: 20px auto;
+            text-align: left;
+            height: 200px;
+            overflow-y: auto;
+        }
+        button {
+            background-color: #238636;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #2ea44f; }
+    </style>
+</head>
+<body>
+
+    <h1>🤬 THE CRITIC</h1>
+    <p class="status">System Status: <span id="clock">Waiting...</span></p>
+    
+    <!-- Browsers restrict sound/speech until the user clicks at least once -->
+    <button id="startBtn" onclick="initSystem()">ACTIVATE SYSTEM</button>
+
+    <div class="log" id="terminalLog">
+        [SYSTEM] Click "ACTIVATE SYSTEM" to turn on the scheduler...
+    </div>
+
+    <script>
+        const ALARM_HOURS =; // 9 AM, 11 AM, 3 PM
+        let lastTriggeredHour = -1;
+        let systemActive = false;
+
+        const insults = [
+            "Is that all you've got? My grandma pulls harder than that!",
+            "Stop hanging around like a wet towel and pull your chin over the bar!",
+            "I've seen sloths move faster. Drop and give me ONE MORE!",
+            "Gravity is winning. Fight back!",
+            "Your form looks like an accordion. Do ONE MORE, properly this time!"
+        ];
+
+        function logMessage(msg) {
+            const logBox = document.getElementById("terminalLog");
+            logBox.innerHTML += `<br>[${new Date().toLocaleTimeString()}] ${msg}`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function initSystem() {
+            systemActive = true;
+            document.getElementById("startBtn").style.display = "none";
+            logMessage("System Armed. Monitoring clock for 9 AM, 11 AM, and 3 PM...");
+            
+            // Speak confirmation
+            speak("System activated. Go put your hands on the bar, I am watching.");
+
+            // Run the clock check loop every second
+            setInterval(checkTime, 1000);
+        }
+
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.1; // Slightly faster for an urgent pace
+            utterance.pitch = 0.9; // Deeper voice
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function triggerAlarm() {
+            logMessage("🚨 ALARM TRIGGERED! GO DO PULL-UPS!");
+            
+            // Audio backup: Beep using browser audio synthesizer
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
+            oscillator.connect(audioCtx.destination);
+            oscillator.start();
+            
+            // Silence the synthetic beep after 1.5 seconds, then start talking
+            setTimeout(() => {
+                oscillator.stop();
+                
+                // Fire off the voice commands
+                speak("Attention! It is training time. Get to the bar and give me nine strict pull ups!");
+                
+                // Deliver form critiques every 6 seconds to yell at you
+                let critiqueCount = 0;
+                const interval = setInterval(() => {
+                    if (critiqueCount < insults.length) {
+                        speak(insults[critiqueCount]);
+                        logMessage(`[CRITIQUE]: "${insults[critiqueCount]}"`);
+                        critiqueCount++;
+                    } else {
+                        speak("Final stretch. Give me ONE. MORE. REP!");
+                        logMessage("[CRITIQUE]: 'ONE MORE REP!'");
+                        clearInterval(interval);
+                    }
+                }, 7000);
+
+            }, 1500);
+        }
+
+        function checkTime() {
+            if (!systemActive) return;
+            
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            // Update UI clock display
+            document.getElementById("clock").innerText = `Active - Current Time: ${now.toLocaleTimeString()}`;
+
+            // Check if matches schedule hours
+            if (ALARM_HOURS.includes(currentHour) && currentHour !== lastTriggeredHour) {
+                lastTriggeredHour = currentHour;
+                triggerAlarm();
+            }
+
+            // Reset boundary check when hour rolls over
+            if (!ALARM_HOURS.includes(currentHour)) {
+                lastTriggeredHour = -1;
+            }
+        }
+    </script>
+</body>
+</html>
