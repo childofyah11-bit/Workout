@@ -29,16 +29,16 @@
       100% { box-shadow: 0 0 40px #f472b6, 0 0 80px #fff1; }
     }
     .proj { position: absolute; border-radius: 50%; pointer-events: none; }
-    .gatling { width: 12px; height: 27px; background: #fbbf24; box-shadow: 0 0 20px #fbbf24b0; }
-    .flak { width: 19px; height: 19px; background: #eab308; box-shadow: 0 0 24px #eab308b0; }
-    .laser { width: 7px; height: 48px; background: #818cf8; box-shadow: 0 0 20px #818cf8a0; }
-    .plasma { width: 17px; height: 17px; background: #06b6d4; box-shadow: 0 0 30px #06b6d4b0; }
+    .gatling { width: 12px; height: 2px; background: #fbbf24; box-shadow: 0 0 20px #fbbf24b0; }
+    .flak { width: 19px; height: 1px; background: #eab308; box-shadow: 0 0 24px #eab308b0; }
+    .laser { width: 7px; height: 4px; background: #818cf8; box-shadow: 0 0 20px #818cf8a0; }
+    .plasma { width: 17px; height: 2px; background: #06b6d4; box-shadow: 0 0 30px #06b6d4b0; }
     .railgun { width: 8px; height: 70px; background: #64748b; box-shadow: 0 0 36px #64748bb0; }
     .missile { width: 26px; height: 15px; background: #f59e42; border-radius: 5px; box-shadow: 0 0 22px #f59e42b0; border: 2px solid #a3e635; }
     .banana { width: 31px; height: 13px; background: #fde047; border-radius: 10px 50px 30px 60px / 20px 40px 15px 30px; box-shadow: 0 0 12px #fef08a; border: 2px solid #a3e635; }
     .wavegun { width: 17px; height: 17px; background: #38bdf8; border-radius: 50%; box-shadow: 0 0 22px #38bdf8b0; border: 2px solid #818cf8; }
-    .spammer { width: 7px; height: 22px; background: #fff; box-shadow: 0 0 8px #fff; border: 2px solid #f472b6; }
-    .potato { width: 22px; height: 17px; background: #fbbf24; border-radius: 60% 50% 70% 55%; box-shadow: 0 0 12px #fbbf24b0; border: 2px solid #eab308; }
+    .spammer { width: 7px; height: 12px; background: #fff; box-shadow: 0 0 8px #fff; border: 2px solid #f472b6; }
+    .potato { width: 22px; height: 7px; background: #fbbf24; border-radius: 60% 50% 70% 55%; box-shadow: 0 0 12px #fbbf24b0; border: 2px solid #eab308; }
     .ice { width: 19px; height: 19px; background: #38bdf8; border-radius: 50%; box-shadow: 0 0 28px #7dd3fc; border: 2px solid #818cf8; }
     .megaboom { width: 48px; height: 48px; background: #f472b6; border-radius: 50%; box-shadow: 0 0 60px #f472b6b0; border: 2px solid #e11d48; }
     .upgrade-btn { background: #374151; color: #ececec; border-radius: 7px; border: 2px solid #94a3b8;
@@ -128,15 +128,15 @@
   <script>
 const WEAPON_LIST = [
   {name:'gatling', key:'gatling', desc:'it shoots fast', css:'gatling', dmg: 2},
-  {name:'flak', key:'flak', desc:'a bunch of boom', css:'flak', dmg: 4},
-  {name:'laser', key:'laser', desc:'pew pew, long', css:'laser', dmg: 8},
-  {name:'plasma', key:'plasma', desc:'blue stuff', css:'plasma', dmg: 6},
-  {name:'railgun', key:'railgun', desc:'big line', css:'railgun', dmg: 12},
+  {name:'flak', key:'flak', desc:'a bunch of boom', css:'flak', dmg: 2},
+  {name:'laser', key:'laser', desc:'pew pew, long', css:'laser', dmg: 5},
+  {name:'plasma', key:'plasma', desc:'blue stuff', css:'plasma', dmg: 3},
+  {name:'railgun', key:'railgun', desc:'big line', css:'railgun', dmg: 0.2},
   {name:'missile', key:'missile', desc:'goes after dudes', css:'missile', dmg: 10},
-  {name:'banana', key:'banana', desc:'just a banana', css:'banana', dmg: 3},
-  {name:'wavegun', key:'wavegun', desc:'wavy', css:'wavegun', dmg: 5},
+  {name:'banana', key:'banana', desc:'just a banana', css:'banana', dmg: 2.5},
+  {name:'wavegun', key:'wavegun', desc:'wavy', css:'wavegun', dmg: 0.5},
   {name:'spammer', key:'spammer', desc:'spams', css:'spammer', dmg: 1},
-  {name:'potato', key:'potato', desc:'it is potato', css:'potato', dmg: 4},
+  {name:'potato', key:'potato', desc:'it is potato', css:'potato', dmg: 1.4},
   {name:'ice', key:'ice', desc:'makes stuff slow', css:'ice', dmg: 2},
   {name:'megaboom', key:'megaboom', desc:'really big boom', css:'megaboom', dmg: 24}
 ];
