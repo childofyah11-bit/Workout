@@ -251,7 +251,8 @@
             let now = Date.now();
 
             // --- AUTOMATED DEFENSE TURRET AI SCHEDULERS ---
-            // 1. Plasma Gatling Deployment
             if (starship.weapons.gatling.lvl > 0 && now - starship.weapons.gatling.lastFire > starship.weapons.gatling.cd) {
                 let target = findClosestEnemy(starship, 300);
                 if (target) {
+                    let angle = Math.atan2(target.y - starship.y, target.x - starship.x);
+                    projectiles.push({
