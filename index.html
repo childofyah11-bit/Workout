@@ -60,9 +60,7 @@
     </style>
 </head>
 <body>
-
     <h1>🚀 STARSHIP GUARDIAN MATRIX</h1>
-
     <div id="gameInterface">
         <div id="spaceField">
             <div id="playerShip">
@@ -75,7 +73,6 @@
                 <button class="upgrade-btn" style="width:160px;" onclick="window.location.reload()">REDEPLOY</button>
             </div>
         </div>
-
         <div id="controlBay">
             <div class="stat-panel">
                 <div class="stat-line"><span>Crystals:</span><span id="txtCrystals" class="stat-val" style="color:#eab308;">30</span></div>
@@ -91,7 +88,6 @@
             </p>
         </div>
     </div>
-
     <script>
         const field = document.getElementById('spaceField'), shipEl = document.getElementById('playerShip');
         let state = {
@@ -100,10 +96,8 @@
             costs: { gatling: 30, flak: 75, hull: 40 }, keys: {}, lastGatling: 0, lastFlak: 0
         };
         let entities = { enemies: [], lasers: [] };
-
         window.addEventListener('keydown', e => state.keys[e.code] = true);
         window.addEventListener('keyup', e => state.keys[e.code] = false);
-
         function upgradeWeapon(type) {
             if (state.crystals >= state.costs[type]) {
                 state.crystals -= state.costs[type];
@@ -119,7 +113,6 @@
                 updateUI();
             }
         }
-
         function updateUI() {
             document.getElementById('txtCrystals').innerText = state.crystals;
             document.getElementById('txtHP').innerText = state.hp + '%';
@@ -131,7 +124,6 @@
             document.getElementById('btnHull').innerText = `Reinforce Hull (${state.costs.hull})`;
             document.getElementById('btnHull').disabled = state.crystals < state.costs.hull;
         }
-
         function spawnEnemyWave() {
             if (!state.running) return;
             let count = 3 + state.wave * 2;
@@ -146,7 +138,6 @@
             }
             setTimeout(() => { if (state.running) { state.wave++; updateUI(); spawnEnemyWave(); } }, 12000 + count * 800);
         }
-
         function fireTrackingLaser(startX, startY) {
             if (entities.enemies.length === 0) return;
             let shipCX = state.ship.x + 20, shipCY = state.ship.y + 20, closest = null, minDist = Infinity;
@@ -162,9 +153,17 @@
             field.appendChild(laser);
             entities.lasers.push({ el: laser, x: startX, y: startY, vx: Math.cos(angle) * 9, vy: Math.sin(angle) * 9 });
         }
-
         function loop() {
             if (!state.running) return;
             if (state.keys['KeyA'] || state.keys['ArrowLeft']) state.ship.x = Math.max(0, state.ship.x - state.ship.speed);
             if (state.keys['KeyD'] || state.keys['ArrowRight']) state.ship.x = Math.min(460, state.ship.x + state.ship.speed);
             if (state.keys['KeyW'] || state.keys['ArrowUp']) state.ship.y = Math.max(0, state.ship.y - state.ship.speed);
+            // ... rest of your game loop code
+        }
+        // Don't forget to start the game loop and spawn enemies
+        updateUI();
+        spawnEnemyWave();
+        setInterval(loop, 30);
+    </script>
+</body>
+</html>
