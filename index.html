@@ -4,20 +4,20 @@
   <meta charset="UTF-8">
   <title>idklol</title>
   <style>
-   
+  
   </style>
 </head>
 <body>
   <h1>laser</h1>
   <div class="stat-panel">
-
+    
   </div>
   <div class="progress-bar">
     <div class="progress" id="progress" style="width: 0%"></div>
     <div class="progress-label" id="progressLabel">0 / 1000 XP</div>
   </div>
   <div style="text-align:center;">
-
+    
   </div>
   <div id="spaceField">
     <div id="playerShip"></div>
@@ -44,8 +44,8 @@ const WEAPON_LIST = [
   {name:'wavegun', key:'wavegun', desc:'wavy', css:'wavegun', dmg: 0.5},
   {name:'spammer', key:'spammer', desc:'spams', css:'spammer', dmg: 1},
   {name:'potato', key:'potato', desc:'it is potato', css:'potato', dmg: 1.4},
-  {name:'ice', key:'ice', desc:'makes stuff slow', css:'ice', dmg: 7},
-  {name:'megaboom', key:'megaboom', desc:'really big boom', css:'megaboom', dmg: 10}
+  {name:'ice', key:'ice', desc:'makes stuff slow', css:'ice', dmg: 2},
+  {name:'megaboom', key:'megaboom', desc:'really big boom', css:'megaboom', dmg: 24}
 ];
 const SPECIAL_UPGRADES = [
   {name:'Hull', key:'hull', desc:'+40 hull', type:'hull'},
@@ -55,7 +55,7 @@ const SPECIAL_UPGRADES = [
   {name:'Auto Repair', key:'autoRepair', desc:'regain health', type:'autoRepair'}
 ];
 let state = {
-  running: false, 
+  running: false, // game does not start until weapons picked!
   crystals: 30, hp: 100, wave: 1,
   ship: { x: 425, y: 600, speed: 8 },
   weapons: {},
@@ -107,7 +107,7 @@ function toggleWeapon(key) {
   openWeaponMenu();
   updateForceWeaponPopup();
 }
-
+// --- Force Weapon Pick at Start ---
 function showForceWeaponPopup() {
   let popup = document.getElementById('forceWeaponPopup');
   let list = document.getElementById('forceWeaponList');
@@ -138,9 +138,9 @@ function confirmWeapons() {
   state.running = true;
   updateUI();
   spawnEnemyWave();
-  setInterval(loop, 30);
+  setInterval(loop, 10);
 }
- 
+// --- XP and ProgressBar ---
 function addXP(val) {
   state.xp += val;
   if(state.xp>=1000){
@@ -151,7 +151,7 @@ function addXP(val) {
 }
 function showChooseUpgradePopup() {
   state.running = false;
- 
+  // pick 3 unique upgrades (from weapons & special upgrades)
   let allUpgs = [...WEAPON_LIST.map(w=>({type:'weapon', key:w.key, name:w.name, desc:w.desc})), ...SPECIAL_UPGRADES];
   let choices = [];
   while(choices.length<3){
@@ -173,7 +173,7 @@ function showChooseUpgradePopup() {
 function chooseUpgrade(opt) {
   let popup = document.getElementById('chooseUpgradePopup');
   popup.style.display='none';
-  
+  // apply upgrade 5 times!
   for(let i=0;i<5;i++){
     if(opt.type==='weapon'){
       state.weapons[opt.key]++;
@@ -298,7 +298,8 @@ function spawnEnemyWave() {
       el.style.background = `linear-gradient(135deg, ${etype.color}, #111827)`;
       document.getElementById('spaceField').appendChild(el);
 
- 
+      // --------- THIS IS THE ONLY CHANGE! ------------
+      // Enemies get much more HP as waves increase
       entities.enemies.push({
         el: el,
         x: x,
@@ -307,12 +308,13 @@ function spawnEnemyWave() {
         type: etype,
         side: side
       });
-    
+      // -----------------------------------------------
     }, i * 500);
   }
   setTimeout(() => { if (state.running) { state.wave++; updateUI(); spawnEnemyWave(); } }, 9000 + count * 400);
 }
- 
+// --- FIRING: All 6 selected weapons at once, each looks unique & does unique damage ---
+// CHANGED: Now fires all weapons in all directions, not just one side.
 function fireWeapons() {
   if(state.selectedWeapons.length===0 || entities.enemies.length===0 || !state.running) return;
   let now = Date.now();
@@ -321,11 +323,11 @@ function fireWeapons() {
     let lvl = state.weapons[key];
     if (state.lastFire[key] && now - state.lastFire[key] < 270 - lvl*20) return;
     state.lastFire[key]=now;
-     
-    let numProjectiles = 8;  
+    // Fire in all directions (full circle)
+    let numProjectiles = 8; // number of directions per weapon; adjust for more/less spread
     for(let i=0;i<numProjectiles;i++) {
-      let angle = 2*Math.PI * (i/numProjectiles); 
-      let speed = 5 + 2*lvl;
+      let angle = 2*Math.PI * (i/numProjectiles); // equally spaced around circle
+      let speed = 13 + 2*lvl;
       let vx = Math.cos(angle)*speed, vy = Math.sin(angle)*speed;
       let dmg = weapon.dmg + lvl*2;
       fireProjectile(state.ship.x+25, state.ship.y+25, vx, vy, weapon.css, dmg, key);
@@ -340,21 +342,21 @@ function fireProjectile(x, y, vx, vy, css, dmg=1, weaponKey='') {
   document.getElementById('spaceField').appendChild(proj);
   entities.projectiles.push({ el: proj, x: x, y: y, vx: vx, vy: vy, dmg: dmg, css: css, weapon: weaponKey });
 }
-
+// --- UPDATE ENTITIES ---
 function updateEntities() {
-  
+  // Move projectiles
   for(let i=entities.projectiles.length-1;i>=0;i--){
     let l = entities.projectiles[i];
     l.y += l.vy; l.x += l.vx;
     l.el.style.top = l.y+'px';
     l.el.style.left = l.x+'px';
-    
+    // Remove offscreen
     if(l.y<-60||l.y>700||l.x<-60||l.x>900){ l.el.remove(); entities.projectiles.splice(i,1); }
   }
-
+  // Move enemies
   for(let i=entities.enemies.length-1;i>=0;i--){
     let e = entities.enemies[i];
-    
+    // Move towards ship
     let sx=state.ship.x+25, sy=state.ship.y+25;
     let dx = sx-e.x, dy = sy-e.y;
     let dist = Math.sqrt(dx*dx+dy*dy);
@@ -362,14 +364,14 @@ function updateEntities() {
     e.x += dx/dist*speed; e.y += dy/dist*speed;
     e.el.style.top = e.y+'px';
     e.el.style.left = e.x+'px';
-    
+    // Remove if offscreen
     if(e.y>720||e.y<-60||e.x>920||e.x<-60){ e.el.remove(); entities.enemies.splice(i,1); continue; }
-    
+    // Check collision with projectiles
     for(let j=entities.projectiles.length-1;j>=0;j--){
       let l = entities.projectiles[j];
       if(Math.abs(e.x-l.x)<28 && Math.abs(e.y-l.y)<24){
         e.hp-=l.dmg; 
-        
+        // if(l.weapon==='megaboom') flashScreen(); // <--- big blink disabled
         l.el.remove(); entities.projectiles.splice(j,1);
         if(e.hp<=0){
           e.el.remove(); entities.enemies.splice(i,1);
@@ -381,7 +383,7 @@ function updateEntities() {
         break;
       }
     }
-  
+    // Check collision with ship
     if(Math.abs(e.x-(state.ship.x+25))<34 && Math.abs(e.y-(state.ship.y+25))<34){
       e.el.remove(); entities.enemies.splice(i,1);
       state.hp-=24;
@@ -399,10 +401,10 @@ function flashScreen() {
   document.body.appendChild(flash);
   setTimeout(()=>flash.remove(), 350);
 }
-
+// --- MAIN GAME LOOP ---
 function loop() {
   if (!state.running) return;
-  
+  // Controls
   if (state.keys['KeyA'] || state.keys['ArrowLeft']) state.ship.x = Math.max(0, state.ship.x - state.ship.speed);
   if (state.keys['KeyD'] || state.keys['ArrowRight']) state.ship.x = Math.min(850, state.ship.x + state.ship.speed);
   if (state.keys['KeyW'] || state.keys['ArrowUp']) state.ship.y = Math.max(0, state.ship.y - state.ship.speed);
@@ -413,7 +415,7 @@ function loop() {
   updateEntities();
 }
 updateUI();
-
+// Force weapon pick popup at start:
 window.onload = function() {
   showForceWeaponPopup();
 };
