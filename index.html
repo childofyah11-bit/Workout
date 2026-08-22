@@ -1,604 +1,565 @@
-
-
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8" />
-  <title>battle Bots</title>
+
+  <title>BattletheBots</title>
+
   <style>
+
     body {
+
       margin: 0;
+
       background: linear-gradient(120deg, #182848 0%, #2980b9 100%);
+
       font-family: 'Segoe UI', Arial, sans-serif;
+
       overflow: hidden;
+
     }
+
     #container {
+
       display: flex;
+
       justify-content: center;
+
       align-items: flex-start;
+
       margin-top: 24px;
+
       gap: 30px;
+
       min-width: 1220px;
+
     }
+
     #gameCanvas {
+
       display: block;
+
       background: #171c20;
+
       border: 4px solid #444;
+
       box-shadow: 0 0 32px #111;
+
       border-radius: 18px;
+
       width: 1200px;
+
       height: 800px;
+
       max-width: 98vw;
+
       max-height: 80vw;
+
     }
+
     #overlay {
+
       width: 1200px;
+
       max-width: 98vw;
+
       color: #fff;
+
       font-size: 22px;
+
       background: rgba(0,0,0,0.15);
+
       padding: 10px 0;
+
       border-radius: 0 0 16px 16px;
+
       text-align: center;
+
       pointer-events: none;
+
       user-select: none;
+
       margin-bottom: 7px;
+
     }
+
     #restart {
+
       display: none;
+
       padding: 12px 32px;
+
       font-size: 22px;
+
       margin-top: 18px;
+
       border-radius: 10px;
+
       border: none;
+
       background: #2980b9;
+
       color: #fff;
+
       box-shadow: 0 2px 5px #0008;
+
       cursor: pointer;
+
       pointer-events: auto;
+
     }
+
     #restart:hover {
+
       background: #2ecc71;
+
     }
+
     #chatBox {
+
       min-width: 350px;
+
       color: #fff;
+
       background: rgba(0,0,0,.4);
+
       padding: 11px 24px;
+
       border-radius: 10px;
+
       font-size: 22px;
+
       pointer-events: none;
+
       text-align: center;
+
       margin: 15px auto 0 auto;
+
       position: absolute;
+
       left: 50%;
+
       transform: translateX(-50%);
+
       bottom: 38px;
+
       z-index: 2;
+
     }
+
     #shopSidebar {
+
       background: #23293a;
+
       color: #fff;
+
       border: 4px solid #1a1e2c;
+
       border-radius: 18px;
+
       padding: 36px 30px 30px 30px;
+
       font-size: 21px;
+
       box-shadow: 0 0 42px #111b;
+
       width: 370px;
+
       max-width: 90vw;
+
       min-height: 670px;
+
       margin-top: 0;
+
       position: relative;
+
     }
+
     #shopSidebar h2 {
+
       margin-top: 0;
+
       font-size: 26px;
+
       letter-spacing: 1px;
+
       color: #6dd5fa;
+
       text-shadow: 1px 1px 8px #0006;
+
       text-align: center;
+
     }
+
     .shop-upgrade {
+
       margin-bottom: 18px;
+
       padding-bottom: 10px;
+
       border-bottom: 1px solid #4446;
+
     }
+
     .shop-upgrade:last-child {
+
       border-bottom: none;
+
     }
+
     .shop-btn {
+
       font-size: 17px;
+
       border-radius: 7px;
+
       border: none;
+
       padding: 7px 20px;
+
       background: #3f51b5;
+
       color: #fff;
+
       margin-right: 12px;
+
       cursor: pointer;
+
       transition: background 0.2s;
+
     }
+
     .shop-btn:disabled {
+
       background: #555;
+
       color: #bbb;
+
       cursor: default;
+
     }
+
     .shop-bought {
+
       color: #54ef96;
+
       font-weight:bold;
+
       font-size: 18px;
+
       margin-left: 8px;
+
     }
+
     #pointsDisplay {
+
       font-size: 23px;
+
       text-align: center;
+
       display: block;
+
       margin-bottom: 20px;
+
       color: #ffe082;
+
       letter-spacing: 1px;
+
     }
-    /* Responsive (optional) */
+
     @media (max-width: 1700px) {
+
       #container { flex-direction: column; align-items: center;}
+
       #shopSidebar { width: 95vw; margin-top: 20px;}
+
       #gameCanvas { width: 98vw !important; height: 65vw !important; max-width: 1200px; max-height: 800px;}
+
     }
+
   </style>
+
 </head>
+
 <body>
+
   <div id="overlay">
+
     <span id="score"></span><br>
+
     <span id="meta"></span><br>
-    <span id="controls" style="font-size:15px;color:#bbf;">Move: WASD / Arrows &nbsp; Shoot: Mouse &nbsp; Switch Weapons: 1-3</span><br>
+
+    <span id="controls" style="font-size:15px;color:#bbf;">Move: WASD / Arrows   Shoot: Mouse   Switch Weapons: 1-3</span><br>
+
     <button id="restart">Restart</button>
+
   </div>
+
   <div id="chatBox"></div>
+
   <div id="container">
+
     <canvas id="gameCanvas" width="1200" height="800"></canvas>
+
     <div id="shopSidebar">
+
       <h2>Upgrade Shop</h2>
+
       <span id="pointsDisplay"></span>
+
       <div id="shopItems"></div>
+
     </div>
+
   </div>
+
   <script>
+
     // ======= Super Battle Bots =======
+
     // Written by YOU! Make it your own.
 
-    // --- Game State and Globals ---
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const scoreDisplay = document.getElementById('score');
-    const metaDisplay = document.getElementById('meta');
-    const restartBtn = document.getElementById('restart');
-    const pointsDisplay = document.getElementById('pointsDisplay');
-    let chatTimer = null;
-    let permanentBoost = parseInt(localStorage.getItem('boost') || '0');
-    let game, keys = {};
-    let lastMouseX = canvas.width/2, lastMouseY = canvas.height/2;
-    let mouseDown = false;
+// --- Game State and Globals ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreDisplay = document.getElementById('score');
+const metaDisplay = document.getElementById('meta');
+const restartBtn = document.getElementById('restart');
+const pointsDisplay = document.getElementById('pointsDisplay');
+let chatTimer = null;
+let permanentBoost = parseInt(localStorage.getItem('boost') || '0');
+let carryPoints = parseInt(localStorage.getItem('carryPoints') || '0');
+let game, keys = {};
+let lastMouseX = canvas.width/2, lastMouseY = canvas.height/2;
+let mouseDown = false;
 
-    // ======= Utility Functions =======
-    function rand(a, b) { return Math.random() * (b - a) + a; }
+function rand(a, b) { return Math.random() * (b - a) + a; }
 
-    // ======= Entity Classes =======
-    class Entity {
-      constructor(x, y, r, color) {
-        this.x = x; this.y = y; this.r = r; this.color = color;
-        this.alive = true;
-      }
-      draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-      }
-      distanceTo(e) {
-        return Math.hypot(this.x - e.x, this.y - e.y);
-      }
-    }
+class Entity {
+  constructor(x, y, r, color) {
+    this.x = x; this.y = y; this.r = r; this.color = color;
+    this.alive = true;
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+  }
+  distanceTo(e) {
+    return Math.hypot(this.x - e.x, this.y - e.y);
+  }
+}
 
-    class Player extends Entity {
-      constructor() {
-        super(canvas.width/2, canvas.height/2, 22, '#46e1fd');
-        this.baseSpeed = 3.1 + permanentBoost*0.2;
-        this.speed = this.baseSpeed;
-        this.reload = 0;
-        this.hp = 100 + permanentBoost * 10;
-        this.maxHp = this.hp;
-        this.autoCannon = false;
-        this.autoWeapon = false;
-        this.regen = false;
-        this.explodingBullets = false;
-        this.weapons = [
-          { name: "Pea Shooter", fireRate: 13, bulletSpeed: 8, damage: 17, color: "#3cf" },
-          { name: "Scattergun", fireRate: 27, bulletSpeed: 6, damage: 8, color: "#fc3", spread: 0.34, pellets: 5 },
-          { name: "Laser", fireRate: 6, bulletSpeed: 15, damage: 6, color: "#f3f" }
-        ];
-        this.currentWeapon = 0;
-      }
-      update() {
-        // Movement
-        let dx = (keys['d']||keys['ArrowRight']?1:0) - (keys['a']||keys['ArrowLeft']?1:0);
-        let dy = (keys['s']||keys['ArrowDown']?1:0) - (keys['w']||keys['ArrowUp']?1:0);
-        let mag = Math.hypot(dx, dy);
-        if (mag) { this.x += dx/mag*this.speed; this.y += dy/mag*this.speed; }
-        // Clamp to arena
-        this.x = Math.max(this.r, Math.min(canvas.width-this.r, this.x));
-        this.y = Math.max(this.r, Math.min(canvas.height-this.r, this.y));
-        if (this.reload > 0) this.reload--;
-        // Health regen if unlocked
-        if (this.regen && this.hp < this.maxHp && game.frameCount % 45 === 0) this.hp += 1;
-      }
-      shoot(mx, my) {
-        let w = this.weapons[this.currentWeapon];
-        if (this.reload === 0) {
-          let angle = Math.atan2(my - this.y, mx - this.x);
-          if (w.name === "Scattergun") {
-            for (let i = 0; i < w.pellets; i++) {
-              let spread = angle + (Math.random() - 0.5) * w.spread;
-              game.bullets.push(new Bullet(this.x, this.y, Math.cos(spread) * w.bulletSpeed, Math.sin(spread) * w.bulletSpeed, this, w.damage, w.color, this.explodingBullets));
-            }
-          } else {
-            game.bullets.push(new Bullet(this.x, this.y, Math.cos(angle) * w.bulletSpeed, Math.sin(angle) * w.bulletSpeed, this, w.damage, w.color, this.explodingBullets));
-          }
-          this.reload = w.fireRate;
-        }
-      }
-      draw() {
-        super.draw();
-        // HP bar
-        ctx.fillStyle = "#0f0";
-        ctx.fillRect(this.x-22, this.y-34, 44*this.hp/this.maxHp, 6);
-        ctx.strokeStyle = "#fff";
-        ctx.strokeRect(this.x-22, this.y-34, 44, 6);
-      }
-    }
-
-    class Robot extends Entity {
-      constructor(x, y, wave) {
-        super(x, y, 18, '#e1a93f');
-        this.speed = rand(1.25, 1.7) + wave*0.08;
-        this.reload = 0;
-        this.hp = 25 + wave*8;
-        this.maxHp = this.hp;
-        this.lastDecision = 0;
-        this.target = null;
-        this.evadeDir = 0;
-        this.smartness = Math.min(10, wave + permanentBoost);
-      }
-      update(aiLevel) {
-        if (!this.target || !this.target.alive) this.target = game.player;
-        // --- Dodge bullets
-        let nearestBullet = null, nearestDist = 9999;
-        for (let b of game.bullets)
-          if (b.owner !== this && b.alive && b.owner instanceof Player) {
-            let d = Math.hypot(b.x-this.x, b.y-this.y);
-            if (d < nearestDist && d < 60+aiLevel*5) { nearestBullet = b; nearestDist = d; }
-          }
-        if (nearestBullet && Math.random()<0.88) {
-          // Dodge perpendicular to bullet
-          let perp = Math.atan2(nearestBullet.vy, nearestBullet.vx) + Math.PI/2;
-          this.x += Math.cos(perp)*this.speed*1.45;
-          this.y += Math.sin(perp)*this.speed*1.45;
-        } else if (this.lastDecision < Date.now() - (130-aiLevel*8)) {
-          // --- Flank and group behavior
-          let dx = (this.target.x + Math.sin(Date.now()/360 + this.x)*36) - this.x;
-          let dy = (this.target.y + Math.cos(Date.now()/360 + this.y)*36) - this.y;
-          let mag = Math.hypot(dx, dy);
-          if (mag>0) {
-            // Flank: approach at an offset
-            let angleToPlayer = Math.atan2(dy, dx);
-            let flankOffset = Math.sin(Date.now()/400 + this.x) * 0.9;
-            let angle = angleToPlayer + flankOffset;
-            this.x += Math.cos(angle) * this.speed * rand(0.95,1.07);
-            this.y += Math.sin(angle) * this.speed * rand(0.95,1.07);
-          }
-          this.lastDecision = Date.now();
-        }
-        // --- Shoot if in range and line of sight
-        if (this.reload === 0 && this.distanceTo(this.target) < 450 && Math.random()<0.89) {
-          let angle = Math.atan2(this.target.y-this.y, this.target.x-this.x);
-          game.bullets.push(new Bullet(this.x, this.y, Math.cos(angle)*7, Math.sin(angle)*7, this, 12+aiLevel*1.5, "#fa4"));
-          this.reload = Math.max(36 - aiLevel * 2, 11);
-        } else if (this.reload > 0) this.reload--;
-        // Clamp
-        this.x = Math.max(this.r, Math.min(canvas.width-this.r, this.x));
-        this.y = Math.max(this.r, Math.min(canvas.height-this.r, this.y));
-      }
-      draw() {
-        super.draw();
-        ctx.fillStyle = "#f44";
-        ctx.fillRect(this.x-18, this.y-29, 36*this.hp/this.maxHp, 5);
-        ctx.strokeStyle = "#fff";
-        ctx.strokeRect(this.x-18, this.y-29, 36, 5);
-      }
-    }
-
-    class Bullet extends Entity {
-      constructor(x, y, vx, vy, owner, damage = 20, color = "#fff", explodes = false) {
-        super(x, y, 6, color);
-        this.vx = vx; this.vy = vy;
-        this.owner = owner;
-        this.life = 70;
-        this.damage = damage;
-        this.explodes = explodes;
-      }
-      update() {
-        this.x += this.vx; this.y += this.vy;
-        this.life--;
-        if (this.x<0 || this.x>canvas.width || this.y<0 || this.y>canvas.height || this.life<=0)
-          this.alive = false;
-      }
-      explode() {
-        // Small explosion effect: damage nearby robots
-        for (let r of game.robots) if (r.alive && this.distanceTo(r)<44) {
-          r.hp -= Math.round(this.damage*0.65);
-        }
-        // Visual effect
-        for(let i=0;i<10;i++){
-          ctx.beginPath();
-          ctx.arc(this.x+rand(-14,14), this.y+rand(-14,14), rand(2,5), 0, 2*Math.PI);
-          ctx.fillStyle = "#ff8";
-          ctx.fill();
-        }
-      }
-    }
-
-    // ======= AI Chat =======
-    function aiChat(msg, delay = 0) {
-      if (chatTimer) clearTimeout(chatTimer);
-      document.getElementById('chatBox').textContent = msg;
-      chatTimer = setTimeout(() => document.getElementById('chatBox').textContent = '', 3500 + delay);
-    }
-
-    // ======= Upgrade Shop =======
-    const upgrades = [
-      {
-        name: "Auto Defense Cannon",
-        cost: 350,
-        bought: false,
-        desc: "Fires at nearby enemies automatically.",
-        action: function(game) { game.player.autoCannon = true; }
-      },
-      {
-        name: "Automatic Rifle",
-        cost: 220,
-        bought: false,
-        desc: "Hold mouse to fire rapidly.",
-        action: function(game) { game.player.autoWeapon = true; }
-      },
-      {
-        name: "More Health",
-        cost: 120,
-        bought: false,
-        desc: "Increase max HP by 40.",
-        action: function(game) { game.player.maxHp += 40; game.player.hp += 40; }
-      },
-      {
-        name: "Move Speed Boost",
-        cost: 130,
-        bought: false,
-        desc: "Move faster!",
-        action: function(game) { game.player.speed += 1.2; }
-      },
-      {
-        name: "Health Regen",
-        cost: 200,
-        bought: false,
-        desc: "Regenerate 1 HP every few seconds.",
-        action: function(game) { game.player.regen = true; }
-      },
-      {
-        name: "Exploding Bullets",
-        cost: 350,
-        bought: false,
-        desc: "Your bullets explode on impact!",
-        action: function(game) { game.player.explodingBullets = true; }
-      }
+class Player extends Entity {
+  constructor() {
+    super(canvas.width/2, canvas.height/2, 22, '#46e1fd');
+    this.baseSpeed = 3.1 + permanentBoost*0.2;
+    this.speed = this.baseSpeed;
+    this.reload = 0;
+    this.hp = 100 + permanentBoost * 10;
+    this.maxHp = this.hp;
+    this.autoCannon = false;
+    this.autoWeapon = false;
+    this.regen = false;
+    this.explodingBullets = false;
+    this.weapons = [
+      { name: "Pea Shooter", fireRate: 13, bulletSpeed: 8, damage: 17, color: "#3cf" },
+      { name: "Scattergun", fireRate: 27, bulletSpeed: 6, damage: 8, color: "#fc3", spread: 0.34, pellets: 5 },
+      { name: "Laser", fireRate: 6, bulletSpeed: 15, damage: 6, color: "#f3f" }
     ];
-
-    function updateShopSidebar() {
-      pointsDisplay.textContent = `Points: ${game ? game.score : 0}`;
-      let items = document.getElementById('shopItems');
-      items.innerHTML = '';
-      upgrades.forEach((upgrade, i) => {
-        let btn = `<button class="shop-btn" onclick="buyUpgrade(${i})" ${upgrade.bought || (game && game.score < upgrade.cost) ? "disabled" : ""}>Buy</button>`;
-        items.innerHTML += `<div class="shop-upgrade">
-            <strong>${upgrade.name}</strong> <span style="color:#ffe082;">(${upgrade.cost} pts)</span><br>
-            <span style="color:#aad;">${upgrade.desc}</span><br>
-            ${btn} ${upgrade.bought ? "<span class='shop-bought'>Bought!</span>" : ""}
-          </div>`;
-      });
-    }
-    function buyUpgrade(idx) {
-      let upgrade = upgrades[idx];
-      if (!upgrade.bought && game.score >= upgrade.cost) {
-        game.score -= upgrade.cost;
-        upgrade.bought = true;
-        upgrade.action(game);
-        updateShopSidebar();
-        aiChat(`Upgrade Purchased: ${upgrade.name}`);
-      }
-    }
-    window.buyUpgrade = buyUpgrade;
-
-    // ======= Game Logic =======
-    function startGame() {
-      game = {
-        player: new Player(),
-        robots: [],
-        bullets: [],
-        wave: 1,
-        score: 0,
-        aiLevel: 1,
-        nextWave: 0,
-        running: true,
-        paused: false,
-        frameCount: 0
-      };
-      upgrades.forEach(u=>u.bought=false); // Reset upgrades
-      restartBtn.style.display = 'none';
-      metaDisplay.style.color = "#fff";
-      updateShopSidebar();
-      mainLoop();
-    }
-
-    function spawnRobots(n, wave) {
-      for (let i=0;i<n;i++) {
-        let edge = rand(0,4);
-        let x = edge<2? (edge===0?0:canvas.width) : rand(60,canvas.width-60);
-        let y = edge>=2? (edge===2?0:canvas.height) : rand(60,canvas.height-60);
-        game.robots.push(new Robot(x, y, wave));
-      }
-    }
-
-    function mainLoop() {
-      if (!game.running) return;
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      game.frameCount++;
-
-      // Player update and draw
-      game.player.update();
-      game.player.draw();
-
-      // Weapons: show
-      let weaponList = game.player.weapons.map((w,i)=>`${i+1}:${w.name}`).join(" | ");
-
-      // Robots update/draw
-      let aiLevel = Math.min(13, game.wave + permanentBoost);
-      for (let r of game.robots) {
-        if (r.alive) {
-          r.update(aiLevel);
-          r.draw();
+    this.currentWeapon = 0;
+  }
+  update() {
+    let dx = (keys['d']||keys['ArrowRight']?1:0) - (keys['a']||keys['ArrowLeft']?1:0);
+    let dy = (keys['s']||keys['ArrowDown']?1:0) - (keys['w']||keys['ArrowUp']?1:0);
+    let mag = Math.hypot(dx, dy);
+    if (mag) { this.x += dx/mag*this.speed; this.y += dy/mag*this.speed; }
+    this.x = Math.max(this.r, Math.min(canvas.width-this.r, this.x));
+    this.y = Math.max(this.r, Math.min(canvas.height-this.r, this.y));
+    if (this.reload > 0) this.reload--;
+    if (this.regen && this.hp < this.maxHp && game.frameCount % 45 === 0) this.hp += 1;
+  }
+  shoot(mx, my) {
+    let w = this.weapons[this.currentWeapon];
+    if (this.reload === 0) {
+      let angle = Math.atan2(my - this.y, mx - this.x);
+      if (w.name === "Scattergun") {
+        for (let i = 0; i < w.pellets; i++) {
+          let spread = angle + (Math.random() - 0.5) * w.spread;
+          game.bullets.push(new Bullet(this.x, this.y, Math.cos(spread) * w.bulletSpeed, Math.sin(spread) * w.bulletSpeed, this, w.damage, w.color, this.explodingBullets));
         }
-      }
-      // Bullets update/draw
-      for (let b of game.bullets) {
-        if (b.alive) {
-          b.update();
-          b.draw();
-        }
-      }
-      // Collisions: bullets vs robots
-      for (let b of game.bullets) if (b.alive && b.owner instanceof Player) {
-        for (let r of game.robots) if (r.alive) {
-          if (r.distanceTo(b) < r.r+b.r) {
-            r.hp -= b.damage;
-            if (b.explodes) b.explode();
-            b.alive = false;
-            if (r.hp <= 0) {
-              r.alive = false;
-              game.score += 11 + game.wave * 2;
-              if (Math.random() < 0.25) aiChat("You'll pay for that!");
-            }
-          }
-        }
-      }
-      // Collisions: bullets vs player
-      for (let b of game.bullets) if (b.alive && !(b.owner instanceof Player)) {
-        if (game.player.distanceTo(b) < game.player.r+b.r) {
-          game.player.hp -= b.damage;
-          b.alive = false;
-          if (game.player.hp < 25 && Math.random() < 0.13) aiChat("You're almost done for!");
-        }
-      }
-      // Robots touch player
-      for (let r of game.robots) if (r.alive) {
-        if (game.player.distanceTo(r) < (game.player.r + r.r)) {
-          game.player.hp -= 0.9;
-          if (game.player.hp < 30 && Math.random() < 0.04) aiChat("We got you cornered now!");
-        }
-      }
-      // Remove dead bullets/robots
-      game.bullets = game.bullets.filter(b=>b.alive);
-      game.robots = game.robots.filter(r=>r.alive);
-
-      // Next wave
-      if (Date.now() > game.nextWave && game.robots.length < Math.min(6 + game.wave, 30)) {
-        spawnRobots(1 + Math.floor(game.wave/1.6), game.wave);
-        if (game.wave % 3 === 0) aiChat("Brace yourself, human!");
-        game.wave++;
-        game.nextWave = Date.now() + 2700 - game.wave*7;
-      }
-
-      // Auto Defense Cannon
-      if (game.player.autoCannon && game.frameCount % 28 === 0) {
-        let nearest = null, minDist = 1e9;
-        game.robots.forEach(r => {
-          let d = game.player.distanceTo(r);
-          if (r.alive && d < minDist) { minDist = d; nearest = r; }
-        });
-        if (nearest) {
-          let angle = Math.atan2(nearest.y - game.player.y, nearest.x - game.player.x);
-          game.bullets.push(new Bullet(game.player.x, game.player.y, Math.cos(angle) * 11, Math.sin(angle) * 11, game.player, 13, "#f44", false));
-        }
-      }
-
-      // Shooting: support auto weapon
-      handlePlayerShooting();
-
-      // Draw UI
-      scoreDisplay.textContent = `Score: ${game.score}  Wave: ${game.wave}  HP: ${Math.ceil(game.player.hp)}  Weapon: ${game.player.weapons[game.player.currentWeapon].name} [${weaponList}]`;
-      metaDisplay.textContent = `Permanent Boost: +${permanentBoost} &nbsp; | &nbsp; Upgrades: ${upgrades.filter(u=>u.bought).length}/${upgrades.length}`;
-      metaDisplay.style.color = upgrades.filter(u=>u.bought).length ? "#aef5be" : "#fff";
-      updateShopSidebar();
-
-      // Game over
-      if (game.player.hp <= 0) {
-        game.running = false;
-        restartBtn.style.display = 'inline-block';
-        aiChat("You lose. Play again?");
-        if (game.wave-1 > permanentBoost) {
-          permanentBoost = game.wave-1;
-          localStorage.setItem('boost', permanentBoost.toString());
-          metaDisplay.textContent = `Permanent Boost Upgraded! +${permanentBoost}`;
-        }
-        scoreDisplay.textContent = `GAME OVER. Final Score: ${game.score}  Wave: ${game.wave}`;
       } else {
-        requestAnimationFrame(mainLoop);
+        game.bullets.push(new Bullet(this.x, this.y, Math.cos(angle) * w.bulletSpeed, Math.sin(angle) * w.bulletSpeed, this, w.damage, w.color, this.explodingBullets));
       }
+      this.reload = w.fireRate;
     }
+  }
+  draw() {
+    super.draw();
+    ctx.fillStyle = "#0f0";
+    ctx.fillRect(this.x-22, this.y-34, 44*this.hp/this.maxHp, 6);
+    ctx.strokeStyle = "#fff";
+    ctx.strokeRect(this.x-22, this.y-34, 44, 6);
+  }
+}
 
-    function handlePlayerShooting() {
-      if (!game.running || game.paused) return;
-      if (mouseDown && (!game.player.autoWeapon || game.player.reload === 0)) {
-        game.player.shoot(lastMouseX, lastMouseY);
+class Robot extends Entity {
+  constructor(x, y, wave) {
+    super(x, y, 18, '#e1a93f');
+    this.speed = rand(1.25, 1.7) + wave*0.08;
+    this.reload = 0;
+    this.hp = 25 + wave*8;
+    this.maxHp = this.hp;
+    this.lastDecision = 0;
+    this.target = null;
+    this.evadeDir = 0;
+    this.smartness = Math.min(10, wave + permanentBoost);
+  }
+  update(aiLevel) {
+    if (!this.target || !this.target.alive) this.target = game.player;
+    let nearestBullet = null, nearestDist = 9999;
+    for (let b of game.bullets)
+      if (b.owner !== this && b.alive && b.owner instanceof Player) {
+        let d = Math.hypot(b.x-this.x, b.y-this.y);
+        if (d < nearestDist && d < 60+aiLevel*5) { nearestBullet = b; nearestDist = d; }
       }
+    if (nearestBullet && Math.random()<0.88) {
+      let perp = Math.atan2(nearestBullet.vy, nearestBullet.vx) + Math.PI/2;
+      this.x += Math.cos(perp)*this.speed*1.45;
+      this.y += Math.sin(perp)*this.speed*1.45;
+    } else if (this.lastDecision < Date.now() - (130-aiLevel*8)) {
+      let dx = (this.target.x + Math.sin(Date.now()/360 + this.x)*36) - this.x;
+      let dy = (this.target.y + Math.cos(Date.now()/360 + this.y)*36) - this.y;
+      let mag = Math.hypot(dx, dy);
+      if (mag>0) {
+        let angleToPlayer = Math.atan2(dy, dx);
+        let flankOffset = Math.sin(Date.now()/400 + this.x) * 0.9;
+        let angle = angleToPlayer + flankOffset;
+        this.x += Math.cos(angle) * this.speed * rand(0.95,1.07);
+        this.y += Math.sin(angle) * this.speed * rand(0.95,1.07);
+      }
+      this.lastDecision = Date.now();
     }
+    if (this.reload === 0 && this.distanceTo(this.target) < 450 && Math.random()<0.89) {
+      let angle = Math.atan2(this.target.y-this.y, this.target.x-this.x);
+      game.bullets.push(new Bullet(this.x, this.y, Math.cos(angle)*7, Math.sin(angle)*7, this, 12+aiLevel*1.5, "#fa4"));
+      this.reload = Math.max(36 - aiLevel * 2, 11);
+    } else if (this.reload > 0) this.reload--;
+    this.x = Math.max(this.r, Math.min(canvas.width-this.r, this.x));
+    this.y = Math.max(this.r, Math.min(canvas.height-this.r, this.y));
+  }
+  draw() {
+    super.draw();
+    ctx.fillStyle = "#f44";
+    ctx.fillRect(this.x-18, this.y-29, 36*this.hp/this.maxHp, 5);
+    ctx.strokeStyle = "#fff";
+    ctx.strokeRect(this.x-18, this.y-29, 36, 5);
+  }
+}
 
-    // ======= Controls =======
-    window.addEventListener('keydown', e=>{
-      keys[e.key]=true;
-      if (game && game.player && !isNaN(parseInt(e.key))) {
-        let num = parseInt(e.key) - 1;
-        if (num >= 0 && num < game.player.weapons.length) {
-          game.player.currentWeapon = num;
-          aiChat(`Switched to ${game.player.weapons[num].name}`);
-        }
-      }
-    });
-    window.addEventListener('keyup', e=>keys[e.key]=false);
-    canvas.addEventListener('mousedown', e=>{
-      mouseDown = true;
-      let rect = canvas.getBoundingClientRect();
-      lastMouseX = e.clientX - rect.left;
-      lastMouseY = e.clientY - rect.top;
-      if (game && game.running && !game.paused) game.player.shoot(lastMouseX, lastMouseY);
-    });
-    canvas.addEventListener('mouseup', ()=>{ mouseDown = false; });
-    canvas.addEventListener('mouseleave', ()=>{ mouseDown = false; });
-    canvas.addEventListener('mousemove', e=>{
-      let rect = canvas.getBoundingClientRect();
-      lastMouseX = e.clientX - rect.left;
-      lastMouseY = e.clientY - rect.top;
-    });
-    restartBtn.onclick = () => {
-      startGame();
-    };
+class Bullet extends Entity {
+  constructor(x, y, vx, vy, owner, damage = 20, color = "#fff", explodes = false) {
+    super(x, y, 6, color);
+    this.vx = vx; this.vy = vy;
+    this.owner = owner;
+    this.life = 70;
+    this.damage = damage;
+    this.explodes = explodes;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    this.life--;
+    if (this.x<0 || this.x>canvas.width || this.y<0 || this.y>canvas.height || this.life<=0)
+      this.alive = false;
+  }
+  explode() {
+    for (let r of game.robots) if (r.alive && this.distanceTo(r)<44) {
+      r.hp -= Math.round(this.damage*0.65);
+    }
+    for(let i=0;i<10;i++){
+      ctx.beginPath();
+      ctx.arc(this.x+rand(-14,14), this.y+rand(-14,14), rand(2,5), 0, 2*Math.PI);
+      ctx.fillStyle = "#ff8";
+      ctx.fill();
+    }
+  }
+}
 
-    // ======= Start the Game =======
-    startGame();
+function aiChat(msg, delay = 0) {
+  if (chatTimer) clearTimeout(chatTimer);
+  document.getElementById('chatBox').textContent = msg;
+  chatTimer = setTimeout(() => document.getElementById('chatBox').textContent = '', 3500 + delay);
+}
 
-  </script>
-</body>
-</html>
+const upgrades = [
+  {
+    name: "Auto Defense Cannon",
+    cost: 350,
+    bought: false,
+    desc: "Fires at nearby enemies automatically.",
+    action: function(game) { game.player.autoCannon = true; }
+  },
+  {
+    name: "Automatic Rifle",
+    cost: 220,
+    bought: false,
+    desc: "Hold mouse to fire rapidly.",
+    action: function(game) { game.player.autoWeapon = true; }
+  },
+  {
+    name: "More Health",
+    cost: 120,
+    bought: false,
+    desc: "Increase max HP by 40.",
+    action: function(game) { game.player.maxHp += 40; game.player.hp += 40; }
+  },
+  {
+    name: "Move Speed Boost",
+    cost: 130,
+    bought: false,
+    desc: "Move faster!",
+    action: function(game) { game.player.speed += 1.2; }
+  },
+  {
+    name: "Health Regen",
+    cost: 200,
+    bought: false,
+    desc: "Regenerate 1 HP every few seconds.",
+    action: function(game) { game.player.regen = true; }
+  },
+  {
+    name: "Exploding Bullets",
+    cost: 350,
+    bought: false,
+    desc: "Your bullets explode on impact!",
+    action: function(game) { game.player.explodingBullets = true; }
+  }
+];
+
+function updateShopSidebar() {
+  pointsDisplay.textContent = `Points: ${game ? game.score : 0}`;
+  let items = document.getElementById('shopItems');
+  items.innerHTML = '';
+  upgrades.forEach((upgrade, i) => {
+    let btn = `<button class="shop-btn" onclick="buyUpgrade(${i})" ${upgrade.bought || (game && game.score < upgrade.cost) ? "disabled" : ""}>Buy</button>`;
+    items.innerHTML += `<div class="shop-upgrade">
+        <strong>${upgrade.name}</strong> <span style="color:#ffe082;">(${upgrade.cost} pts)</span><br>
+        <span style="color:#aad;">${upgrade.desc}</span><br>
+        ${btn} ${upgrade.bought ? "<span class='shop-bought'>Bought!</span>" : ""}
+      </div>`;
+  });
+}
+function buyUpgrade(idx) {
+  let upgrade = upgrades[idx];
+  if (!upgrade.bought && game.score >= upgrade.cost) {
+    game.score -= upgrade.cost;
+    upgrade.bought = true;
+    upgrade.action(game);
+    updateShopSidebar();
+    aiChat(`Upgrade Purchased: ${upgrade.name}`);
+  }
+}
