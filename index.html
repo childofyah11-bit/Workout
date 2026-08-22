@@ -1,424 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Space Arena</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title> Another game I guess</title>
   <style>
-    html, body { margin: 0; padding: 0; background: #0c0c18; overflow: hidden; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; }
-    #hud {
-      position: fixed; left: 50%; top: 24px; transform: translateX(-50%);
-      background: rgba(30,32,40,0.94); border-radius: 18px; padding: 15px 42px;
-      box-shadow: 0 2px 32px #22d3ee33; color: #fff; font-size: 1.13em;
-      display: flex; gap: 40px; align-items: center; z-index: 20;
-      letter-spacing: 0.5px;
-    }
-    #hud span { min-width: 110px; }
-    #gameMenu {
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; position: fixed; inset: 0; background: #09090bcc;
-      z-index: 100; color: #fff; font-size: 2.5em;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      letter-spacing: 1px;
-    }
-    #gameMenu button {
-      margin-top: 40px;
-      background: linear-gradient(90deg,#22d3ee,#a3e635);
-      color: #23232a; border: none; padding: 18px 48px; font-size: 1.2em;
-      border-radius: 14px; font-weight: bold; cursor: pointer;
-      box-shadow: 0 4px 32px #22d3ee44;
-      transition: background 0.19s;
-    }
-    #gameMenu button:hover { background: linear-gradient(90deg,#a3e635,#22d3ee); }
-    #copySection {
-      margin-top: 40px;
-      background: #18181b;
-      border-radius: 14px;
-      padding: 24px 18px 18px 18px;
-      box-shadow: 0 6px 32px #a3e63533;
-      width: 94vw;
-      max-width: 800px;
-      font-size: 1.05em;
-      position: relative;
-    }
-    #copyCodeBtn {
-      position: absolute; top: 12px; right: 12px;
-      background: #a3e635; border: none; color: #23232a;
-      font-weight: bold; padding: 7px 22px; border-radius: 7px;
-      cursor: pointer; font-size: 1em; box-shadow: 0 2px 12px #a3e63544;
-      transition: background 0.16s;
-    }
-    #copyCodeBtn.copied { background: #22d3ee; color: #fff; }
-    #sourceCode { font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace; font-size: 1em; }
+    body { margin: 0; background: #222; color: #fff; font-family: sans-serif; }
+    #gameCanvas { display: block; margin: 0 auto; background: #111; border: 2px solid #444; }
+    #overlay { position: absolute; top: 10px; left: 10px; z-index: 2; }
+    #restart { display: none; padding: 10px 20px; font-size: 18px; }
   </style>
 </head>
 <body>
-  <div id="hud" style="display:none;">
-    <span id="hudHP">❤️ HP: 100</span>
-    <span id="hudXP">✨ XP: 0</span>
-    <span id="hudWave">🌊 Wave: 1</span>
-    <span id="hudScore">🏆 Score: 0</span>
-    <span id="hudWeapon">🔫 Laser</span>
+  <div id="overlay">
+    <span id="score"></span><br>
+    <span id="meta"></span><br>
+    <button id="restart">Restart</button>
   </div>
-  <div id="gameMenu">
-    <div style="font-size:1.25em;font-weight:bold;color:#a3e635;margin-bottom:12px;">Space Arena Ultra</div>
-    <div style="font-size:0.53em;margin-top:1em;color:#22d3ee;font-family:monospace;">
-      Move: WASD / Arrows &nbsp;|&nbsp; Shoot: Space &nbsp;|&nbsp; Switch Weapon: Q/E
-    </div>
-    <button onclick="startGame()">Start Game</button>
-    <div id="copySection">
-      <button id="copyCodeBtn">Copy Game Source</button>
-      <pre id="sourceCode"><code><!-- Source code will be injected here via JS --></code></pre>
-    </div>
-  </div>
-  <canvas id="game"></canvas>
-  <script id="gameSource">
-// Game config and state
-const FIELD_W = 24000, FIELD_H = 18000; // Massive playfield!
-const PLAYER_SIZE = 68, ENEMY_SIZE = 62, PROJECTILE_SIZE = 22;
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
+    // --- Game State ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreDisplay = document.getElementById('score');
+    const metaDisplay = document.getElementById('meta');
+    const restartBtn = document.getElementById('restart');
 
-// Weapons: each with unique colors, fire rates, and power
-const WEAPONS = [
-  { name: 'Laser', color: '#22d3ee', glow: '#c2f3ff', speed: 26, dmg: 9, rate: 120 },
-  { name: 'Pulse', color: '#a3e635', glow: '#eaffc2', speed: 18, dmg: 22, rate: 260 },
-  { name: 'Plasma', color: '#eab308', glow: '#fffec2', speed: 14, dmg: 47, rate: 520 }
-];
+    let permanentBoost = parseInt(localStorage.getItem('boost') || '0');
+    let game, keys = {};
 
-// Player state
-let player = {
-  x: FIELD_W/2, y: FIELD_H/2, vx: 0, vy: 0, speed: 15,
-  hp: 100, maxhp: 100, xp: 0, score: 0, wave: 1,
-  weapon: 0, lastShot: 0
-};
-let projectiles = [], enemies = [];
-let keys = {};
-let camera = { x: 0, y: 0 };
-let running = false;
-let particles = [], starfield = [];
+    function rand(a, b) { return Math.random() * (b - a) + a; }
 
-// Canvas setup
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.onresize = resizeCanvas;
-resizeCanvas();
-
-// Star parallax layers
-function createStarfield() {
-  starfield = [];
-  for (let i=0; i<360; i++) {
-    let layer = 1+Math.floor(i/120);
-    starfield.push({
-      x: Math.random()*FIELD_W,
-      y: Math.random()*FIELD_H,
-      r: 0.9+layer*0.6+Math.random()*1.1,
-      color: layer===1?'#fff1':layer===2?'#a3e63555':'#22d3ee33',
-      layer
-    });
-  }
-}
-createStarfield();
-
-// Input
-window.addEventListener('keydown', e => keys[e.code]=true);
-window.addEventListener('keyup', e => keys[e.code]=false);
-
-// Menu start
-function startGame() {
-  document.getElementById('gameMenu').style.display='none';
-  document.getElementById('hud').style.display='flex';
-  resetGame();
-  running = true;
-  requestAnimationFrame(gameLoop);
-}
-
-// Reset state
-function resetGame() {
-  player.x = FIELD_W/2; player.y = FIELD_H/2; player.hp = player.maxhp;
-  player.xp = 0; player.score = 0; player.wave = 1; player.weapon = 0;
-  projectiles = []; enemies = []; particles = [];
-  createStarfield();
-}
-
-// Main game loop
-function gameLoop() {
-  if (!running) return;
-  update();
-  render();
-  requestAnimationFrame(gameLoop);
-}
-
-// Update game logic
-function update() {
-  // Player movement, diagonal normalized
-  let moveX = (keys['KeyA']||keys['ArrowLeft']?-1:0)+(keys['KeyD']||keys['ArrowRight']?1:0);
-  let moveY = (keys['KeyW']||keys['ArrowUp']?-1:0)+(keys['KeyS']||keys['ArrowDown']?1:0);
-  let mv = Math.hypot(moveX, moveY);
-  if (mv) { player.x += player.speed*moveX/mv; player.y += player.speed*moveY/mv; }
-  player.x = Math.max(0, Math.min(FIELD_W-PLAYER_SIZE, player.x));
-  player.y = Math.max(0, Math.min(FIELD_H-PLAYER_SIZE, player.y));
-
-  // Camera follows player, clamped to field
-  camera.x = player.x + PLAYER_SIZE/2 - canvas.width/2;
-  camera.y = player.y + PLAYER_SIZE/2 - canvas.height/2;
-  camera.x = Math.max(0, Math.min(FIELD_W-canvas.width, camera.x));
-  camera.y = Math.max(0, Math.min(FIELD_H-canvas.height, camera.y));
-
-  // Shooting
-  if (keys['Space']) shoot();
-  // Change weapon
-  if (keys['KeyQ']) { player.weapon=(player.weapon+WEAPONS.length-1)%WEAPONS.length; keys['KeyQ']=false;}
-  if (keys['KeyE']) { player.weapon=(player.weapon+1)%WEAPONS.length; keys['KeyE']=false;}
-
-  // Projectiles update
-  for (let i=projectiles.length-1;i>=0;i--) {
-    let p=projectiles[i]; p.x+=p.vx; p.y+=p.vy;
-    // Trail effect
-    for (let j=0;j<2;j++) particles.push({
-      x: p.x+PROJECTILE_SIZE/2*(Math.random()-0.5),
-      y: p.y+PROJECTILE_SIZE/2*(Math.random()-0.5),
-      r: 2+Math.random()*2,
-      color: WEAPONS[player.weapon].glow,
-      life: 10+Math.random()*8
-    });
-    if (p.x<0||p.x>FIELD_W||p.y<0||p.y>FIELD_H) projectiles.splice(i,1);
-  }
-
-  // Enemies update
-  if (enemies.length==0) spawnWave();
-  for (let i=enemies.length-1;i>=0;i--) {
-    let e = enemies[i];
-    let dx=player.x-e.x, dy=player.y-e.y, dist=Math.hypot(dx,dy);
-    // Smarter AI: Dodge, random wiggle, avoid bunching
-    if (Math.random()<0.14) {
-      let angle = Math.atan2(dy, dx)+(Math.random()-0.5)*0.8;
-      e.x += Math.cos(angle)*e.speed;
-      e.y += Math.sin(angle)*e.speed;
-    } else {
-      e.x += dx/dist*e.speed*0.7;
-      e.y += dy/dist*e.speed*0.7;
-    }
-    // Collide with player
-    if (Math.abs(e.x-player.x)<(ENEMY_SIZE+PLAYER_SIZE)/2 &&
-        Math.abs(e.y-player.y)<(ENEMY_SIZE+PLAYER_SIZE)/2) {
-      player.hp -= e.dmg; shakeCamera(6,12);
-      for(let k=0;k<16;k++) particles.push({
-        x: player.x+PLAYER_SIZE/2+Math.random()*22-11,
-        y: player.y+PLAYER_SIZE/2+Math.random()*22-11,
-        r: 3+Math.random()*5, color: '#ef4444', life: 12+Math.random()*16
-      });
-      enemies.splice(i,1);
-      if (player.hp<=0) gameOver();
-    }
-    // Hit by projectile
-    for (let j=projectiles.length-1;j>=0;j--) {
-      let p=projectiles[j];
-      if (Math.abs(e.x-p.x)<ENEMY_SIZE/2 && Math.abs(e.y-p.y)<ENEMY_SIZE/2) {
-        e.hp -= p.dmg;
-        for(let k=0;k<10;k++) particles.push({
-          x: e.x+ENEMY_SIZE/2*Math.random()-ENEMY_SIZE/4,
-          y: e.y+ENEMY_SIZE/2*Math.random()-ENEMY_SIZE/4,
-          r: 2+Math.random()*4, color: e.color, life: 8+Math.random()*12
-        });
-        projectiles.splice(j,1);
-        if (e.hp<=0) {
-          player.xp += e.xp; player.score += e.score;
-          for(let k=0;k<25;k++) particles.push({
-            x: e.x+ENEMY_SIZE/2*Math.random()-ENEMY_SIZE/4,
-            y: e.y+ENEMY_SIZE/2*Math.random()-ENEMY_SIZE/4,
-            r: 3+Math.random()*8, color: e.color, life: 16+Math.random()*19
-          });
-          shakeCamera(8,18);
-          enemies.splice(i,1);
-          break;
-        }
+    // --- Entities ---
+    class Entity {
+      constructor(x, y, r, color) {
+        this.x = x; this.y = y; this.r = r; this.color = color;
+        this.alive = true;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
+      distanceTo(e) {
+        return Math.hypot(this.x - e.x, this.y - e.y);
       }
     }
-  }
 
-  // Particles update
-  for (let i=particles.length-1;i>=0;i--) {
-    let p=particles[i];
-    p.life--;
-    if (p.life<=0) particles.splice(i,1);
-  }
-
-  // XP/Level-up
-  if (player.xp>=100) {
-    player.xp-=100; player.maxhp+=12; player.hp=player.maxhp;
-    for(let k=0;k<22;k++) particles.push({
-      x: player.x+PLAYER_SIZE/2+Math.random()*22-11,
-      y: player.y+PLAYER_SIZE/2+Math.random()*22-11,
-      r: 2+Math.random()*7, color: '#a3e635', life: 16+Math.random()*15
-    });
-    shakeCamera(8,14);
-  }
-
-  // HUD
-  document.getElementById('hudHP').innerText = `❤️ HP: ${player.hp}`;
-  document.getElementById('hudXP').innerText = `✨ XP: ${player.xp}`;
-  document.getElementById('hudWave').innerText = `🌊 Wave: ${player.wave}`;
-  document.getElementById('hudScore').innerText = `🏆 Score: ${player.score}`;
-  document.getElementById('hudWeapon').innerText = `🔫 ${WEAPONS[player.weapon].name}`;
-}
-
-// Render everything
-let camShake = {dx:0,dy:0,t:0};
-function shakeCamera(strength, frames) {
-  camShake.dx = strength*(Math.random()-0.5);
-  camShake.dy = strength*(Math.random()-0.5);
-  camShake.t = frames;
-}
-function render() {
-  // Camera shake
-  if (camShake.t>0) { camShake.t--; } else { camShake.dx=camShake.dy=0;}
-  // Background gradients and parallax stars
-  let camX = camera.x+camShake.dx, camY = camera.y+camShake.dy;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  let bgGrad = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-  bgGrad.addColorStop(0,'#0b1a24'); bgGrad.addColorStop(1,'#1a2c3a');
-  ctx.fillStyle = bgGrad;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  // Starfield parallax
-  for (let s of starfield) {
-    let parx = (s.x-camX/s.layer)%FIELD_W, pary = (s.y-camY/s.layer)%FIELD_H;
-    let xx = ((parx+FIELD_W)%FIELD_W), yy = ((pary+FIELD_H)%FIELD_H);
-    ctx.beginPath(); ctx.arc(xx,yy,s.r,0,2*Math.PI);
-    ctx.fillStyle = s.color; ctx.fill();
-  }
-  // Player ship: shape, gradient, shine
-  ctx.save();
-  ctx.translate(player.x-camX+PLAYER_SIZE/2, player.y-camY+PLAYER_SIZE/2);
-  ctx.rotate(Date.now()/900 % (2*Math.PI));
-  let grad=ctx.createRadialGradient(0,0,10,0,0,PLAYER_SIZE/1.5);
-  grad.addColorStop(0,'#fff8'); grad.addColorStop(0.3,'#fef08a');
-  grad.addColorStop(0.7,'#38bdf8'); grad.addColorStop(1,'#0ea5e9');
-  ctx.shadowColor = '#22d3ee'; ctx.shadowBlur = 30;
-  ctx.beginPath(); ctx.moveTo(0,-PLAYER_SIZE/2);
-  for(let i=0;i<6;i++){
-    let a=i*Math.PI/3;
-    let r = PLAYER_SIZE/2*(i%2?0.7:1);
-    ctx.lineTo(Math.sin(a)*r,-Math.cos(a)*r);
-  }
-  ctx.closePath(); ctx.fillStyle=grad; ctx.fill();
-  // Cockpit shine
-  ctx.beginPath();
-  ctx.ellipse(0,-PLAYER_SIZE/4,PLAYER_SIZE/7,PLAYER_SIZE/4,0,0,2*Math.PI);
-  ctx.fillStyle='#fff6'; ctx.fill();
-  ctx.restore();
-
-  // Player engine fire
-  ctx.save();
-  ctx.translate(player.x-camX+PLAYER_SIZE/2, player.y-camY+PLAYER_SIZE/2+PLAYER_SIZE/2-8);
-  for(let i=0;i<4;i++){
-    ctx.beginPath();
-    ctx.ellipse(0,24+i*4,7-i*1.7,16-i*2.5,0,0,2*Math.PI);
-    ctx.fillStyle=`rgba(34,211,238,${0.19-0.04*i})`;
-    ctx.fill();
-  }
-  ctx.restore();
-
-  // Projectiles
-  for (let p of projectiles) {
-    ctx.save();
-    ctx.translate(p.x-camX,p.y-camY);
-    ctx.shadowColor=WEAPONS[player.weapon].glow; ctx.shadowBlur=24;
-    ctx.beginPath(); ctx.arc(0,0,PROJECTILE_SIZE/2,0,2*Math.PI); ctx.fillStyle=WEAPONS[player.weapon].color; ctx.fill();
-    ctx.restore();
-  }
-
-  // Enemies (hexagon ships)
-  for (let e of enemies) {
-    ctx.save();
-    ctx.translate(e.x-camX,e.y-camY);
-    ctx.shadowColor=e.color; ctx.shadowBlur=18;
-    ctx.beginPath();
-    for(let i=0;i<6;i++) {
-      let a=i*Math.PI/3;
-      let r = ENEMY_SIZE/2*(i%2?0.7:1.1);
-      ctx.lineTo(Math.sin(a)*r,-Math.cos(a)*r);
+    class Player extends Entity {
+      constructor() {
+        super(canvas.width/2, canvas.height/2, 18, '#3cf');
+        this.speed = 3 + permanentBoost;
+        this.reload = 0;
+        this.hp = 100 + permanentBoost * 10;
+        this.maxHp = this.hp;
+      }
+      update() {
+        let dx = (keys['d']||keys['ArrowRight']?1:0) - (keys['a']||keys['ArrowLeft']?1:0);
+        let dy = (keys['s']||keys['ArrowDown']?1:0) - (keys['w']||keys['ArrowUp']?1:0);
+        let mag = Math.hypot(dx, dy);
+        if (mag) { this.x += dx/mag*this.speed; this.y += dy/mag*this.speed; }
+        this.x = Math.max(this.r, Math.min(canvas.width-this.r, this.x));
+        this.y = Math.max(this.r, Math.min(canvas.height-this.r, this.y));
+        if (this.reload > 0) this.reload--;
+      }
+      shoot(mx, my) {
+        if (this.reload === 0) {
+          let angle = Math.atan2(my-this.y, mx-this.x);
+          game.bullets.push(new Bullet(this.x, this.y, Math.cos(angle)*7, Math.sin(angle)*7, this));
+          this.reload = 10;
+        }
+      }
+      draw() {
+        super.draw();
+        // HP bar
+        ctx.fillStyle = "#0f0";
+        ctx.fillRect(this.x-20, this.y-28, 40*this.hp/this.maxHp, 5);
+      }
     }
-    ctx.closePath(); ctx.fillStyle=e.color; ctx.globalAlpha=0.96; ctx.fill(); ctx.globalAlpha=1;
-    // Health bar
-    ctx.fillStyle='#fff9'; ctx.fillRect(-ENEMY_SIZE/2,-ENEMY_SIZE/2-10,ENEMY_SIZE*(e.hp/e.maxhp),6);
-    ctx.restore();
-  }
 
-  // Particles
-  for (let p of particles) {
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, p.life/20);
-    ctx.beginPath(); ctx.arc(p.x-camX,p.y-camY,p.r,0,2*Math.PI);
-    ctx.fillStyle = p.color; ctx.fill();
-    ctx.restore();
-  }
-}
+    class Robot extends Entity {
+      constructor(x, y, wave) {
+        super(x, y, 16, '#fa4');
+        this.speed = rand(1.2, 1.6) + wave*0.1;
+        this.reload = 0;
+        this.hp = 25 + wave*7;
+        this.maxHp = this.hp;
+        this.lastDecision = 0;
+        this.target = null;
+        this.evadeDir = 0;
+      }
+      update(aiLevel) {
+        if (!this.target || !this.target.alive) this.target = game.player;
+        // --- AI: Evasion ---
+        let nearestBullet = null, nearestDist = 9999;
+        for (let b of game.bullets)
+          if (b.owner !== this && b.alive) {
+            let d = Math.hypot(b.x-this.x, b.y-this.y);
+            if (d < nearestDist && d < 50) { nearestBullet = b; nearestDist = d; }
+          }
+        if (nearestBullet && Math.random()<0.8) {
+          // Dodge perpendicular to bullet
+          let perp = Math.atan2(nearestBullet.vy, nearestBullet.vx) + Math.PI/2;
+          this.x += Math.cos(perp)*this.speed*1.4;
+          this.y += Math.sin(perp)*this.speed*1.4;
+        } else if (this.lastDecision < Date.now() - (120-aiLevel*10)) {
+          // --- AI: Flank and Pursue ---
+          let dx = (this.target.x + Math.sin(Date.now()/400 + this.x)*32) - this.x;
+          let dy = (this.target.y + Math.cos(Date.now()/400 + this.y)*32) - this.y;
+          let mag = Math.hypot(dx, dy);
+          if (mag>0) {
+            this.x += dx/mag * this.speed;
+            this.y += dy/mag * this.speed;
+          }
+          this.lastDecision = Date.now();
+        }
+        // --- AI: Shoot if in range and line of sight ---
+        if (this.reload === 0 && this.distanceTo(this.target) < 340 && Math.random()<0.85) {
+          // Line of sight check (simple: no walls)
+          let angle = Math.atan2(this.target.y-this.y, this.target.x-this.x);
+          game.bullets.push(new Bullet(this.x, this.y, Math.cos(angle)*6, Math.sin(angle)*6, this));
+          this.reload = Math.max(32 - aiLevel * 2, 10);
+        } else if (this.reload > 0) this.reload--;
+        // Clamp to arena
+        this.x = Math.max(this.r, Math.min(canvas.width-this.r, this.x));
+        this.y = Math.max(this.r, Math.min(canvas.height-this.r, this.y));
+      }
+      draw() {
+        super.draw();
+        ctx.fillStyle = "#f00";
+        ctx.fillRect(this.x-16, this.y-25, 32*this.hp/this.maxHp, 4);
+      }
+    }
 
-// Shooting
-function shoot() {
-  let now = Date.now();
-  let w = WEAPONS[player.weapon];
-  if (now-player.lastShot<w.rate) return;
-  player.lastShot=now;
-  // Your ship fires forward only
-  let angle = 0;
-  let vx = Math.cos(angle)*w.speed, vy = Math.sin(angle)*w.speed;
-  projectiles.push({
-    x: player.x+PLAYER_SIZE/2, y: player.y+PLAYER_SIZE/2,
-    vx, vy, dmg: w.dmg, color: w.color
-  });
-  // Firing effect
-  for(let k=0;k<9;k++) particles.push({
-    x: player.x+PLAYER_SIZE/2+Math.random()*6-3,
-    y: player.y+PLAYER_SIZE/2+Math.random()*6-3,
-    r: 2+Math.random()*3,
-    color: w.glow, life: 7+Math.random()*7
-  });
-}
+    class Bullet extends Entity {
+      constructor(x, y, vx, vy, owner) {
+        super(x, y, 5, '#fff');
+        this.vx = vx; this.vy = vy;
+        this.owner = owner;
+        this.life = 60;
+      }
+      update() {
+        this.x += this.vx; this.y += this.vy;
+        this.life--;
+        if (this.x<0 || this.x>canvas.width || this.y<0 || this.y>canvas.height || this.life<=0)
+          this.alive = false;
+      }
+    }
 
-// Spawn enemies for current wave
-function spawnWave() {
-  let n = Math.min(22, 4+player.wave*2), hp = 40+player.wave*12, dmg=7+Math.floor(player.wave/2);
-  for (let i=0;i<n;i++) {
-    let angle = Math.random()*2*Math.PI;
-    let dist = Math.max(canvas.width,canvas.height)*0.9 + Math.random()*900;
-    let ex = player.x + Math.cos(angle)*dist;
-    let ey = player.y + Math.sin(angle)*dist;
-    ex = Math.max(0, Math.min(FIELD_W-ENEMY_SIZE, ex));
-    ey = Math.max(0, Math.min(FIELD_H-ENEMY_SIZE, ey));
-    let color = ['#ef4444','#eab308','#a3e635','#38bdf8','#f472b6','#f59e42','#a21caf','#e11d48'][i%8];
-    enemies.push({x:ex,y:ey,hp,maxhp:hp,speed:3.5+Math.random()*2.5,dmg,xp:18+player.wave*3,score:36+player.wave*14,color});
-  }
-  player.wave++;
-}
+    // --- Game Logic ---
+    function startGame() {
+      game = {
+        player: new Player(),
+        robots: [],
+        bullets: [],
+        wave: 1,
+        score: 0,
+        aiLevel: 1,
+        nextWave: 0,
+        running: true
+      };
+      restartBtn.style.display = 'none';
+      mainLoop();
+    }
 
-// Game over
-function gameOver() {
-  running = false;
-  document.getElementById('gameMenu').style.display='flex';
-  document.getElementById('gameMenu').innerHTML = `<div style="font-size:1.3em;margin-bottom:16px;">Game Over!</div>
-    <div style="font-size:1.02em;margin-bottom:30px;">Score: ${player.score} | Wave: ${player.wave-1}</div>
-    <button onclick="startGame()">Restart</button>` + document.getElementById('copySection').outerHTML;
-}
+    function spawnRobots(n, wave) {
+      for (let i=0;i<n;i++) {
+        let edge = rand(0,4);
+        let x = edge<2? (edge===0?0:canvas.width) : rand(60,canvas.width-60);
+        let y = edge>=2? (edge===2?0:canvas.height) : rand(60,canvas.height-60);
+        game.robots.push(new Robot(x, y, wave));
+      }
+    }
 
-// --- Copy-to-Clipboard logic for entire source ---
-document.getElementById('copyCodeBtn').onclick = function() {
-  let code = document.getElementById('sourceCode').innerText;
-  navigator.clipboard.writeText(code).then(() => {
-    this.classList.add('copied'); this.innerText = 'Copied!';
-    setTimeout(()=>{ this.classList.remove('copied'); this.innerText = 'Copy Game Source'; }, 1700);
-  });
-};
+    function mainLoop() {
+      if (!game.running) return;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // Update player
+      game.player.update();
+      game.player.draw();
 
-// Inject source code for copying
-window.onload = () => {
-  let src = document.getElementById('gameSource').textContent.trim();
-  document.getElementById('sourceCode').textContent = src;
-};
+      // Update robots
+      let aiLevel = Math.min(10, game.wave + permanentBoost);
+      for (let r of game.robots) {
+        if (r.alive) {
+          r.update(aiLevel);
+          r.draw();
+        }
+      }
+      // Update bullets
+      for (let b of game.bullets) {
+        if (b.alive) {
+          b.update();
+          b.draw();
+        }
+      }
+      // Collisions: bullets vs. robots
+      for (let b of game.bullets) if (b.alive) {
+        for (let r of game.robots) if (r.alive && b.owner !== r) {
+          if (r.distanceTo(b) < r.r+b.r) {
+            r.hp -= 20;
+            b.alive = false;
+            if (r.hp <= 0) {
+              r.alive = false;
+              game.score += 10 + game.wave * 2;
+            }
+          }
+        }
+      }
+      // Collisions: bullets vs player
+      for (let b of game.bullets) if (b.alive && b.owner !== game.player) {
+        if (game.player.distanceTo(b) < game.player.r+b.r) {
+          game.player.hp -= 15;
+          b.alive = false;
+        }
+      }
+      // Robots touch player
+      for (let r of game.robots) if (r.alive) {
+        if (game.player.distanceTo(r) < (game.player.r + r.r)) {
+          game.player.hp -= 0.7;
+        }
+      }
+      // Remove dead bullets/robots
+      game.bullets = game.bullets.filter(b=>b.alive);
+      game.robots = game.robots.filter(r=>r.alive);
+
+      // Next wave
+      if (Date.now() > game.nextWave && game.robots.length < Math.min(5 + game.wave, 25)) {
+        spawnRobots(1 + Math.floor(game.wave/2), game.wave);
+        game.wave++;
+        game.nextWave = Date.now() + 3600 - game.wave*10;
+      }
+
+      // Draw UI
+      scoreDisplay.textContent = `Score: ${game.score}  Wave: ${game.wave}  HP: ${Math.ceil(game.player.hp)}`;
+      metaDisplay.textContent = `Permanent Boost: +${permanentBoost}  (Earn more by reaching higher waves!)`;
+
+      // Game over
+      if (game.player.hp <= 0) {
+        game.running = false;
+        restartBtn.style.display = 'inline-block';
+        // Meta-progression: save best wave as permanent boost
+        if (game.wave-1 > permanentBoost) {
+          permanentBoost = game.wave-1;
+          localStorage.setItem('boost', permanentBoost.toString());
+          metaDisplay.textContent = `Permanent Boost Upgraded! +${permanentBoost}`;
+        }
+        scoreDisplay.textContent = `GAME OVER. Final Score: ${game.score}  Wave: ${game.wave}`;
+      } else {
+        requestAnimationFrame(mainLoop);
+      }
+    }
+
+    // --- Controls ---
+    window.addEventListener('keydown', e=>keys[e.key]=true);
+    window.addEventListener('keyup', e=>keys[e.key]=false);
+    canvas.addEventListener('mousedown', e=>{
+      let rect = canvas.getBoundingClientRect();
+      let mx = e.clientX - rect.left;
+      let my = e.clientY - rect.top;
+      if (game && game.running) game.player.shoot(mx, my);
+    });
+    restartBtn.onclick = startGame;
+
+    // --- Start ---
+    startGame();
   </script>
 </body>
 </html>
